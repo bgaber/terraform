@@ -1,0 +1,5 @@
+login_cred_profile="Shared"
+switch_role_cred_profile="US-Test"
+iam_group_name="Salesforce"
+assume_role_policy_name="assumerole-salesforce"
+assumed_role="salesforce-role-assumed"
