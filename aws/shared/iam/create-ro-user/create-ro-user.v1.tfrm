@@ -1,0 +1,70 @@
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 4.0"
+    }
+  }
+}
+
+provider "aws" {
+  region = "us-east-1"
+  profile = "default"
+}
+
+resource "aws_iam_user" "user" {
+  provider = aws.us-east-1
+  name = "fudde"
+  tags = {
+    Name = "Elmer Fudd"
+    Creator = "Terraform"
+  }
+}
+
+resource "aws_iam_user_policy_attachment" "prod-attach" {
+  provider = aws.us-east-1
+  user       = aws_iam_user.user.name
+  policy_arn = "arn:aws:iam::472510080448:policy/AWSProdReadOnly"
+}
+
+resource "aws_iam_user_policy_attachment" "test-attach" {
+  provider = aws.us-east-1
+  user       = aws_iam_user.user.name
+  policy_arn = "arn:aws:iam::472510080448:policy/AWSTestReadOnly"
+}
+
+resource "aws_iam_user_policy_attachment" "dev-attach" {
+  provider = aws.us-east-1
+  user       = aws_iam_user.user.name
+  policy_arn = "arn:aws:iam::472510080448:policy/AWSDevReadOnly"
+}
+
+resource "aws_iam_user_policy_attachment" "canada-attach" {
+  provider = aws.us-east-1
+  user       = aws_iam_user.user.name
+  policy_arn = "arn:aws:iam::472510080448:policy/ACAProdReadOnly"
+}
+
+resource "aws_iam_user_policy_attachment" "mfa" {
+  provider = aws.us-east-1
+  user       = aws_iam_user.user.name
+  policy_arn = "arn:aws:iam::472510080448:policy/custom-iam-access-key-and-MFA"
+}
+
+resource "aws_iam_user_policy_attachment" "deny-ssm" {
+  provider = aws.us-east-1
+  user       = aws_iam_user.user.name
+  policy_arn = "arn:aws:iam::472510080448:policy/DenySSM"
+}
+
+resource "aws_iam_user_policy_attachment" "force-mfa" {
+  provider = aws.us-east-1
+  user       = aws_iam_user.user.name
+  policy_arn = "arn:aws:iam::472510080448:policy/Force_MFA"
+}
+
+resource "aws_iam_user_policy_attachment" "change-password" {
+  provider = aws.us-east-1
+  user       = aws_iam_user.user.name
+  policy_arn = "arn:aws:iam::aws:policy/IAMUserChangePassword"
+}

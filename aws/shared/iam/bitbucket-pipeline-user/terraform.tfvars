@@ -1,0 +1,7 @@
+cred_profile  = "Sandbox"
+account       = "655690556973"
+creation_date = "2023-02-16 09:30:00"
+created_by    = "Brian Gaber using Terraform"
+owner         = "Jason Boomer"
+application   = "BitBucket Pipelines"
+username      = "bitbucket_pipelines_sb"

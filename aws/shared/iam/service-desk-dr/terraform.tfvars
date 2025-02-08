@@ -1,0 +1,6 @@
+login_cred_profile            = "Shared"
+aish_switch_role_cred_profile = "AI-Self-Help"
+prod_switch_role_cred_profile = "US-Prod"
+iam_group_name                = "Service-Desk-DR"
+assume_role_policy_name       = "service-desk-dr-assume-role-policy"
+assumed_role                  = "service-desk-dr-role-assumed"

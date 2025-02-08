@@ -1,0 +1,5 @@
+login_cred_profile       = "Shared"
+switch_role_cred_profile = "AI-Self-Help"
+iam_group_name           = "Experience-Management"
+assume_role_policy_name  = "experience-mgt"
+assumed_role_name        = "experience-mgt-role-assumed"

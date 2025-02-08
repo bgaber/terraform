@@ -1,0 +1,5 @@
+login_cred_profile="Shared"
+switch_role_cred_profile="AI-Self-Help"
+login_account="472510080448"
+switch_role_account="047453590376"
+developer_group_name="AI-Self-Help-Dev-Group"
