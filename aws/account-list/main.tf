@@ -6,6 +6,5 @@ data "external" "aws_sso_accounts" {
 }
 
 output "aws_accounts" {
-  #value = data.external.aws_sso_accounts.result["accounts"]
   value = split(",", data.external.aws_sso_accounts.result["accounts"])
 }
