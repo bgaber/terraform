@@ -1,0 +1,6 @@
+provider.tf
+- add gitlab provider - DONE
+
+modules/iam_service_account/main.tf
+- create aws_iam_access_key resource using code in cloud-custodian/iam/main as example - DONE
+- write aws_iam_access_key AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY to Gitlab > CI/CD > Variables - DONE

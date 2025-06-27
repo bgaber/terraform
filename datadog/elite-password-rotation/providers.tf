@@ -1,5 +1,9 @@
 terraform {
   required_providers {
+    random = {
+      source  = "hashicorp/random"
+      version = ">= 3.0"
+    }
     datadog = {
       source = "DataDog/datadog"
     }
@@ -14,10 +18,10 @@ terraform {
 provider "datadog" {
   default_tags {
     tags = {
-      Created   = "09 Dec 2024"
+      Created   = "25 Feb 2025"
       Creator   = "Brian Gaber"
       ManagedBy = "Terraform"
-      Owner     = "Lucas Cardim"
+      Owner     = "Colin Krane"
       JIRA      = "NOC-1239"
       Purpose   = "Rotation of the Elite Monitoring Account"
     }
