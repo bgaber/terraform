@@ -132,6 +132,13 @@ sso_role_name = AdministratorAccess
 region = us-east-1
 output = json
 
+[profile fedramp-network-prd]
+sso_session = fedramp-session
+sso_account_id = 104299473261
+sso_role_name = AdministratorAccess
+region = us-east-1
+output = json
+
 [profile fedramp-security]
 sso_session = fedramp-session
 sso_account_id = 980921753767
@@ -320,5 +327,15 @@ The SSM Run Command uses this SSM Document to install the CrowdStrike Falcon Sen
 # Testing
 
 Once this solution is deployed it can be tested from the AWS Lambda console by going to the `trigger-ssm-lambda` Lambda function and using the native **Test** functionality.
+
+# New AWS Accounts
+
+If a new AWS account needs to be incorporated into this module, here are the files that need to be modified:
+
+* /variables.tf
+* /terraform.tfvars
+* /provider.tf
+* /main.tf
+* /modules/ssm/variables.tf
 
 # Helpful commands

@@ -105,6 +105,7 @@ resource "aws_iam_policy" "lambda_policy" {
           "arn:aws:iam::202533508444:role/${var.lambda_iam_assume_role_name}",
           "arn:aws:iam::816069130447:role/${var.lambda_iam_assume_role_name}",
           "arn:aws:iam::445567083790:role/${var.lambda_iam_assume_role_name}",
+          "arn:aws:iam::104299473261:role/${var.lambda_iam_assume_role_name}",
           "arn:aws:iam::897722679597:role/${var.lambda_iam_assume_role_name}",
           "arn:aws:iam::195665324256:role/${var.lambda_iam_assume_role_name}"
         ]

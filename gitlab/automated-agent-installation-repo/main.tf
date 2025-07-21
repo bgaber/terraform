@@ -28,12 +28,37 @@ resource "aws_iam_user_policy_attachment" "sns_full_access_attach" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonSNSFullAccess"
 }
 
-resource "aws_iam_user_policy_attachment" "sms_read_access_attach" {
+resource "aws_iam_user_policy_attachment" "ssm_read_access_attach" {
   user       = aws_iam_user.service_account.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMReadOnlyAccess"
 }
 
-# Inline IAM User Policy
+# Inline SSM User Policy
+resource "aws_iam_user_policy" "ssm_write_access_policy" {
+  name     = "SSMWriteAccess"
+  user     = aws_iam_user.service_account.name
+
+  # Terraform's "jsonencode" function converts a
+  # Terraform expression result to valid JSON syntax.
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid      = "SSMWriteAccess",
+        Action   = [
+          "ssm:CreateDocument",
+          "ssm:AddTagsToResource",
+          "ssm:UpdateDocument",
+          "ssm:UpdateDocumentDefaultVersion"
+        ],
+        Effect   = "Allow"
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+# Inline Glue User Policy
 resource "aws_iam_user_policy" "glue_full_access_policy" {
   name     = "GlueFullAccess"
   user     = aws_iam_user.service_account.name
@@ -70,7 +95,10 @@ resource "aws_iam_user_policy" "iam_create_access_policy" {
           "iam:TagRole",
           "iam:CreatePolicy",
           "iam:TagPolicy",
-          "iam:AttachRolePolicy"
+          "iam:AttachRolePolicy",
+          "iam:ListPolicyVersions",
+          "iam:DetachRolePolicy",
+          "iam:DeletePolicy"
         ],
         Effect   = "Allow"
         Resource = "*"

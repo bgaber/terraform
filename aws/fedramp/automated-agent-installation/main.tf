@@ -5,6 +5,15 @@ module "fedramp_security_ssm" {
   }
 }
 
+module "fedramp_security_state_manager" {
+  linux_ssm_document_name = module.fedramp_security_ssm.linux_ssm_document_id
+  windows_ssm_document_name = module.fedramp_security_ssm.windows_ssm_document_id
+  source = "./modules/state-manager"
+  providers = {
+    aws = aws.fedramp_security
+  }
+}
+
 module "fedramp_security_sns" {
   source = "./modules/sns"
   providers = {
@@ -37,11 +46,29 @@ module "fedramp_agencysim_npri_iam_role" {
   }
 }
 
+module "fedramp_agencysim_npri_state_manager" {
+  linux_ssm_document_name = module.fedramp_security_ssm.linux_ssm_document_arn
+  windows_ssm_document_name = module.fedramp_security_ssm.windows_ssm_document_arn
+  source = "./modules/state-manager"
+  providers = {
+    aws = aws.fedramp_agencysim_npri
+  }
+}
+
 module "fedramp_edgenw_npr_iam_role" {
   source = "./modules/lambda-iam-assume-role"
   lambda_role_arn    = "arn:aws:iam::${var.lambda_account}:role/${var.lambda_role_name}" ## ARN from FedRAMP Security account
   lambda_assume_role = var.lambda_iam_assume_role_name
   lambda_policy      = var.lambda_iam_assume_role_policy_name
+  providers = {
+    aws = aws.fedramp_edge_nw_npr
+  }
+}
+
+module "fedramp_edge_nw_npr_state_manager" {
+  linux_ssm_document_name = module.fedramp_security_ssm.linux_ssm_document_arn
+  windows_ssm_document_name = module.fedramp_security_ssm.windows_ssm_document_arn
+  source = "./modules/state-manager"
   providers = {
     aws = aws.fedramp_edge_nw_npr
   }
@@ -57,11 +84,29 @@ module "fedramp_edgenw_npri_iam_role" {
   }
 }
 
+module "fedramp_edge_nw_npri_state_manager" {
+  linux_ssm_document_name = module.fedramp_security_ssm.linux_ssm_document_arn
+  windows_ssm_document_name = module.fedramp_security_ssm.windows_ssm_document_arn
+  source = "./modules/state-manager"
+  providers = {
+    aws = aws.fedramp_edge_nw_npri
+  }
+}
+
 module "fedramp_edgenw_prd_iam_role" {
   source = "./modules/lambda-iam-assume-role"
   lambda_role_arn    = "arn:aws:iam::${var.lambda_account}:role/${var.lambda_role_name}" ## ARN from FedRAMP Security account
   lambda_assume_role = var.lambda_iam_assume_role_name
   lambda_policy      = var.lambda_iam_assume_role_policy_name
+  providers = {
+    aws = aws.fedramp_edge_nw_prd
+  }
+}
+
+module "fedramp_edge_nw_prd_state_manager" {
+  linux_ssm_document_name = module.fedramp_security_ssm.linux_ssm_document_arn
+  windows_ssm_document_name = module.fedramp_security_ssm.windows_ssm_document_arn
+  source = "./modules/state-manager"
   providers = {
     aws = aws.fedramp_edge_nw_prd
   }
@@ -77,11 +122,29 @@ module "fedramp_integration_npr_iam_role" {
   }
 }
 
+module "fedramp_integration_npr_state_manager" {
+  linux_ssm_document_name = module.fedramp_security_ssm.linux_ssm_document_arn
+  windows_ssm_document_name = module.fedramp_security_ssm.windows_ssm_document_arn
+  source = "./modules/state-manager"
+  providers = {
+    aws = aws.fedramp_integration_npr
+  }
+}
+
 module "fedramp_integration_npri_iam_role" {
   source = "./modules/lambda-iam-assume-role"
   lambda_role_arn    = "arn:aws:iam::${var.lambda_account}:role/${var.lambda_role_name}" ## ARN from FedRAMP Security account
   lambda_assume_role = var.lambda_iam_assume_role_name
   lambda_policy      = var.lambda_iam_assume_role_policy_name
+  providers = {
+    aws = aws.fedramp_integration_npri
+  }
+}
+
+module "fedramp_integration_npri_state_manager" {
+  linux_ssm_document_name = module.fedramp_security_ssm.linux_ssm_document_arn
+  windows_ssm_document_name = module.fedramp_security_ssm.windows_ssm_document_arn
+  source = "./modules/state-manager"
   providers = {
     aws = aws.fedramp_integration_npri
   }
@@ -97,11 +160,29 @@ module "fedramp_integration_prd_iam_role" {
   }
 }
 
+module "fedramp_integration_prd_state_manager" {
+  linux_ssm_document_name = module.fedramp_security_ssm.linux_ssm_document_arn
+  windows_ssm_document_name = module.fedramp_security_ssm.windows_ssm_document_arn
+  source = "./modules/state-manager"
+  providers = {
+    aws = aws.fedramp_integration_prd
+  }
+}
+
 module "fedramp_k8s_npr_iam_role" {
   source = "./modules/lambda-iam-assume-role"
   lambda_role_arn    = "arn:aws:iam::${var.lambda_account}:role/${var.lambda_role_name}" ## ARN from FedRAMP Security account
   lambda_assume_role = var.lambda_iam_assume_role_name
   lambda_policy      = var.lambda_iam_assume_role_policy_name
+  providers = {
+    aws = aws.fedramp_k8s_npr
+  }
+}
+
+module "fedramp_k8s_npr_state_manager" {
+  linux_ssm_document_name = module.fedramp_security_ssm.linux_ssm_document_arn
+  windows_ssm_document_name = module.fedramp_security_ssm.windows_ssm_document_arn
+  source = "./modules/state-manager"
   providers = {
     aws = aws.fedramp_k8s_npr
   }
@@ -117,12 +198,29 @@ module "fedramp_k8s_npri_iam_role" {
   }
 }
 
+module "fedramp_k8s_npri_state_manager" {
+  linux_ssm_document_name = module.fedramp_security_ssm.linux_ssm_document_arn
+  windows_ssm_document_name = module.fedramp_security_ssm.windows_ssm_document_arn
+  source = "./modules/state-manager"
+  providers = {
+    aws = aws.fedramp_k8s_npri
+  }
+}
 
 module "fedramp_k8s_prd_iam_role" {
   source = "./modules/lambda-iam-assume-role"
   lambda_role_arn    = "arn:aws:iam::${var.lambda_account}:role/${var.lambda_role_name}" ## ARN from FedRAMP Security account
   lambda_assume_role = var.lambda_iam_assume_role_name
   lambda_policy      = var.lambda_iam_assume_role_policy_name
+  providers = {
+    aws = aws.fedramp_k8s_prd
+  }
+}
+
+module "fedramp_k8s_prd_state_manager" {
+  linux_ssm_document_name = module.fedramp_security_ssm.linux_ssm_document_arn
+  windows_ssm_document_name = module.fedramp_security_ssm.windows_ssm_document_arn
+  source = "./modules/state-manager"
   providers = {
     aws = aws.fedramp_k8s_prd
   }
@@ -138,6 +236,34 @@ module "fedramp_network_iam_role" {
   }
 }
 
+module "fedramp_network_state_manager" {
+  linux_ssm_document_name = module.fedramp_security_ssm.linux_ssm_document_arn
+  windows_ssm_document_name = module.fedramp_security_ssm.windows_ssm_document_arn
+  source = "./modules/state-manager"
+  providers = {
+    aws = aws.fedramp_network
+  }
+}
+
+module "fedramp_network_prd_iam_role" {
+  source = "./modules/lambda-iam-assume-role"
+  lambda_role_arn    = "arn:aws:iam::${var.lambda_account}:role/${var.lambda_role_name}" ## ARN from FedRAMP Security account
+  lambda_assume_role = var.lambda_iam_assume_role_name
+  lambda_policy      = var.lambda_iam_assume_role_policy_name
+  providers = {
+    aws = aws.fedramp_network_prd
+  }
+}
+
+module "fedramp_network_prd_state_manager" {
+  linux_ssm_document_name = module.fedramp_security_ssm.linux_ssm_document_arn
+  windows_ssm_document_name = module.fedramp_security_ssm.windows_ssm_document_arn
+  source = "./modules/state-manager"
+  providers = {
+    aws = aws.fedramp_network_prd
+  }
+}
+
 module "fedramp_tools_npri_iam_role" {
   source = "./modules/lambda-iam-assume-role"
   lambda_role_arn    = "arn:aws:iam::${var.lambda_account}:role/${var.lambda_role_name}" ## ARN from FedRAMP Security account
@@ -148,11 +274,29 @@ module "fedramp_tools_npri_iam_role" {
   }
 }
 
+module "fedramp_tools_npri_state_manager" {
+  linux_ssm_document_name = module.fedramp_security_ssm.linux_ssm_document_arn
+  windows_ssm_document_name = module.fedramp_security_ssm.windows_ssm_document_arn
+  source = "./modules/state-manager"
+  providers = {
+    aws = aws.fedramp_tools_npri
+  }
+}
+
 module "fedramp_tools_prd_iam_role" {
   source = "./modules/lambda-iam-assume-role"
   lambda_role_arn    = "arn:aws:iam::${var.lambda_account}:role/${var.lambda_role_name}" ## ARN from FedRAMP Security account
   lambda_assume_role = var.lambda_iam_assume_role_name
   lambda_policy      = var.lambda_iam_assume_role_policy_name
+  providers = {
+    aws = aws.fedramp_tools_prd
+  }
+}
+
+module "fedramp_tools_prd_state_manager" {
+  linux_ssm_document_name = module.fedramp_security_ssm.linux_ssm_document_arn
+  windows_ssm_document_name = module.fedramp_security_ssm.windows_ssm_document_arn
+  source = "./modules/state-manager"
   providers = {
     aws = aws.fedramp_tools_prd
   }

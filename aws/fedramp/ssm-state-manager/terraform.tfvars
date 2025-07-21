@@ -13,3 +13,9 @@ fedramp_network_prd_profile      = "fedramp-network-prd"
 fedramp_security_profile         = "fedramp-security"
 fedramp_tools_npri_profile       = "fedramp-tools-npri"
 fedramp_tools_prd_profile        = "fedramp-tools-prd"
+
+falcon_cloud = "us-gov-1" # Replace with your Falcon Cloud Region
+# setting tags and proxy settings for linux machines
+#linux_installer_params = "--aph=proxy-fips.tecsysfed-proxy.cloud --app=3128"
+# setting tags and proxy settings for windows machines
+#windows_installer_params = "APP_PROXYNAME=proxy-fips.tecsysfed-proxy.cloud APP_PROXYPORT=3128" 

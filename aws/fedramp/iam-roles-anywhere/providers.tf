@@ -1,16 +1,16 @@
-terraform {
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = ">= 5.0"
+provider "aws" {
+  alias   = "fedramp_agencysim_npri"
+  region  = terraform.workspace == "default" ? "us-east-1" : "us-west-2"
+  profile = var.fedramp_agencysim_npri_profile
+  default_tags {
+    tags = {
+      Created   = "17 Jul 2025"
+      Creator   = "Brian Gaber"
+      ManagedBy = "Terraform"
+      Owner     = "Colin Krane"
+      JIRA      = "FED-604"
+      Purpose   = "Setup AWS IAM Roles Anywhere"
     }
-  }
-  backend "s3" {
-    bucket  = "fedramp-terraform-noc"
-    key     = "aws/fedramp/iam-roles-anywhere/tfstate"
-    region  = "us-east-1"
-    profile = "fedramp-tools-npri"
-    #dynamodb_table = "terraform-backend"
   }
 }
 
@@ -21,6 +21,22 @@ provider "aws" {
   default_tags {
     tags = {
       Created   = "30 Apr 2025"
+      Creator   = "Brian Gaber"
+      ManagedBy = "Terraform"
+      Owner     = "Colin Krane"
+      JIRA      = "FED-604"
+      Purpose   = "Setup AWS IAM Roles Anywhere"
+    }
+  }
+}
+
+provider "aws" {
+  alias   = "fedramp_edge_nw_npri"
+  region  = terraform.workspace == "default" ? "us-east-1" : "us-west-2"
+  profile = var.fedramp_edge_nw_npri_profile
+  default_tags {
+    tags = {
+      Created   = "17 Jul 2025"
       Creator   = "Brian Gaber"
       ManagedBy = "Terraform"
       Owner     = "Colin Krane"
@@ -133,6 +149,38 @@ provider "aws" {
   default_tags {
     tags = {
       Created   = "30 Apr 2025"
+      Creator   = "Brian Gaber"
+      ManagedBy = "Terraform"
+      Owner     = "Colin Krane"
+      JIRA      = "FED-604"
+      Purpose   = "Setup AWS IAM Roles Anywhere"
+    }
+  }
+}
+
+provider "aws" {
+  alias   = "fedramp_network"
+  region  = terraform.workspace == "default" ? "us-east-1" : "us-west-2"
+  profile = var.fedramp_network_profile
+  default_tags {
+    tags = {
+      Created   = "17 Jul 2025"
+      Creator   = "Brian Gaber"
+      ManagedBy = "Terraform"
+      Owner     = "Colin Krane"
+      JIRA      = "FED-604"
+      Purpose   = "Setup AWS IAM Roles Anywhere"
+    }
+  }
+}
+
+provider "aws" {
+  alias   = "fedramp_network_prd"
+  region  = terraform.workspace == "default" ? "us-east-1" : "us-west-2"
+  profile = var.fedramp_network_prd_profile
+  default_tags {
+    tags = {
+      Created   = "17 Jul 2025"
       Creator   = "Brian Gaber"
       ManagedBy = "Terraform"
       Owner     = "Colin Krane"

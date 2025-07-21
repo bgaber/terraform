@@ -1,3 +1,26 @@
+module "fedramp_agencysim_npri" {
+  source = "./modules/vpc-flowlogs"
+  providers = {
+    aws = aws.fedramp_agencysim_npri
+  }
+}
+
+output "fedramp_agencysim_npri_trust_anchor_arn" {
+  value = module.fedramp_agencysim_npri.aws_rolesanywhere_trust_anchor_arn
+}
+
+output "fedramp_agencysim_npri_trust_anchor_id" {
+  value = module.fedramp_agencysim_npri.aws_rolesanywhere_trust_anchor_id
+}
+
+output "fedramp_agencysim_npri_profile_arn" {
+  value = module.fedramp_agencysim_npri.aws_rolesanywhere_profile_arn
+}
+
+output "fedramp_agencysim_npri_profile_id" {
+  value = module.fedramp_agencysim_npri.aws_rolesanywhere_profile_arn
+}
+
 module "fedramp_edge_nw_npr" {
   source = "./modules/vpc-flowlogs"
   providers = {
@@ -19,6 +42,29 @@ output "fedramp_edge_nw_npr_profile_arn" {
 
 output "fedramp_edge_nw_npr_profile_id" {
   value = module.fedramp_edge_nw_npr.aws_rolesanywhere_profile_arn
+}
+
+module "fedramp_edge_nw_npri" {
+  source = "./modules/vpc-flowlogs"
+  providers = {
+    aws = aws.fedramp_edge_nw_npri
+  }
+}
+
+output "fedramp_edge_nw_npri_trust_anchor_arn" {
+  value = module.fedramp_edge_nw_npri.aws_rolesanywhere_trust_anchor_arn
+}
+
+output "fedramp_edge_nw_npri_trust_anchor_id" {
+  value = module.fedramp_edge_nw_npri.aws_rolesanywhere_trust_anchor_id
+}
+
+output "fedramp_edge_nw_npri_profile_arn" {
+  value = module.fedramp_edge_nw_npri.aws_rolesanywhere_profile_arn
+}
+
+output "fedramp_edge_nw_npri_profile_id" {
+  value = module.fedramp_edge_nw_npri.aws_rolesanywhere_profile_arn
 }
 
 module "fedramp_edge_nw_prd" {
@@ -180,6 +226,52 @@ output "fedramp_k8s_prd_profile_arn" {
 
 output "fedramp_k8s_prd_profile_id" {
   value = module.fedramp_k8s_prd.aws_rolesanywhere_profile_arn
+}
+
+module "fedramp_network" {
+  source = "./modules/vpc-flowlogs"
+  providers = {
+    aws = aws.fedramp_network
+  }
+}
+
+output "fedramp_network_trust_anchor_arn" {
+  value = module.fedramp_network.aws_rolesanywhere_trust_anchor_arn
+}
+
+output "fedramp_network_trust_anchor_id" {
+  value = module.fedramp_network.aws_rolesanywhere_trust_anchor_id
+}
+
+output "fedramp_network_profile_arn" {
+  value = module.fedramp_network.aws_rolesanywhere_profile_arn
+}
+
+output "fedramp_network_profile_id" {
+  value = module.fedramp_network.aws_rolesanywhere_profile_arn
+}
+
+module "fedramp_network_prd" {
+  source = "./modules/vpc-flowlogs"
+  providers = {
+    aws = aws.fedramp_network_prd
+  }
+}
+
+output "fedramp_network_prd_trust_anchor_arn" {
+  value = module.fedramp_network_prd.aws_rolesanywhere_trust_anchor_arn
+}
+
+output "fedramp_network_prd_trust_anchor_id" {
+  value = module.fedramp_network_prd.aws_rolesanywhere_trust_anchor_id
+}
+
+output "fedramp_network_prd_profile_arn" {
+  value = module.fedramp_network_prd.aws_rolesanywhere_profile_arn
+}
+
+output "fedramp_network_prd_profile_id" {
+  value = module.fedramp_network_prd.aws_rolesanywhere_profile_arn
 }
 
 module "fedramp_security" {

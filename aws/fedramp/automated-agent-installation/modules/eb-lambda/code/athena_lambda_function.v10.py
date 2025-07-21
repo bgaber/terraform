@@ -233,6 +233,7 @@ def send_ssm_command_cross_account(account_ids, role_name, region, version):
                 Parameters={
                     "action": ["Install"],
                     "apikey": [DD_API_KEY],
+                    "hostname": [DD_SITE],
                     "agentmajorversion": [agentmajorversion],
                     "agentminorversion": [agentminorversion],
                 }

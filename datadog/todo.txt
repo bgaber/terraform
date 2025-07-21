@@ -1,0 +1,7 @@
+main.tf
+- rename to k8s-elite.tf
+- change sistersofmercy to customer variable - DONE
+
+hosted-elite.tf
+- create this new module
+- make similar to post-k8s.tf, but specific to a pre-K8s customer

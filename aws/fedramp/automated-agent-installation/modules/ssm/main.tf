@@ -40,11 +40,6 @@ resource "aws_ssm_document" "linux_datadog_agent" {
         "description": "(Optional) Specify the datadog site to use",
         "default": ""
       },
-      "hostname": {
-        "type": "String",
-        "description": "(Optional) Specify the hostname",
-        "default": ""
-      },
       "tags": {
         "type": "String",
         "description": "(Optional) Specify a list of comma-separated tags",
@@ -52,12 +47,12 @@ resource "aws_ssm_document" "linux_datadog_agent" {
       },
       "agentmajorversion": {
         "type": "String",
-        "description": "(Optional) Specify the major version of the agent",
+        "description": "(Optional) Specify the major version of the Datadog Agent",
         "default": "7"
       },
       "agentminorversion": {
         "type": "String",
-        "description": "(Optional) Specify the minor version of the agent",
+        "description": "(Optional) Specify the minor version of the Datadog Agent",
         "default": ""
       }
     },
@@ -76,11 +71,11 @@ resource "aws_ssm_document" "linux_datadog_agent" {
             "  # Check if datadog-agent is installed",
             "  if systemctl status datadog-agent >/dev/null 2>&1; then",
             "    echo 'Datadog agent is installed. Proceeding with upgrade ...'",
+            "    hn=$(hostname)",
             "    INSTALL_SCRIPT_URL=https://s3.amazonaws.com/dd-agent/scripts/install_script_agent7.sh",
-            #"    DD_API_KEY=\"{{ apikey }}\" DD_SITE=\"{{ site }}\" DD_HOST_TAGS=\"{{ tags }}\" DD_HOSTNAME=\"{{ hostname }}\" DD_AGENT_MAJOR_VERSION=\"{{ agentmajorversion }}\" DD_AGENT_MINOR_VERSION=\"{{ agentminorversion }}\" bash -c \"$(curl -L \\\"${INSTALL_SCRIPT_URL}\\\" | sed -e \\\"s|tool: install_script|tool: aws_run_command|g\\\" -e \\\"s|variant=install_script_agent7|variant=aws_run_command-6.0|g\\\")\"",
-            "    DD_API_KEY=\"{{ apikey }}\" DD_SITE=\"{{ site }}\" DD_HOST_TAGS=\"{{ tags }}\" DD_HOSTNAME=\"{{ hostname }}\" DD_AGENT_MAJOR_VERSION=\"{{ agentmajorversion }}\" DD_AGENT_MINOR_VERSION=\"{{ agentminorversion }}\" bash -c \"$(curl -L \"$${INSTALL_SCRIPT_URL}\" | sed -e \"s|tool: install_script|tool: aws_run_command|g\" -e \"s|variant=install_script_agent7|variant=aws_run_command-6.0|g\")\"",
+            "    DD_API_KEY=\"{{ apikey }}\" DD_SITE=\"{{ site }}\" DD_HOST_TAGS=\"{{ tags }}\" DD_HOSTNAME=\"$hn\" DD_AGENT_MAJOR_VERSION=\"{{ agentmajorversion }}\" DD_AGENT_MINOR_VERSION=\"{{ agentminorversion }}\" bash -c \"$(curl -L \"$${INSTALL_SCRIPT_URL}\" | sed -e \"s|tool: install_script|tool: aws_run_command|g\" -e \"s|variant=install_script_agent7|variant=aws_run_command-6.0|g\")\"",
             "  else",
-            "    echo 'Datadog agent not found. Skipping installation.'",
+            "    echo 'Datadog agent not found. Skipping upgrade.'",
             "  fi",
             "fi",
             "set +e"
@@ -98,10 +93,10 @@ resource "aws_ssm_document" "linux_datadog_agent" {
           "runCommand": [
             "set -e",
             "if [ \"{{ action }}\" = \"Install\" ]; then",
-            "  echo 'Datadog agent is installed. Proceeding with upgrade ...'",
+            "  echo 'Proceeding with installation of Datadog Agent ...'",
+            "  hn=$(hostname)",
             "  INSTALL_SCRIPT_URL=https://s3.amazonaws.com/dd-agent/scripts/install_script_agent7.sh",
-            #"  DD_API_KEY=\"{{ apikey }}\" DD_SITE=\"{{ site }}\" DD_HOST_TAGS=\"{{ tags }}\" DD_HOSTNAME=\"{{ hostname }}\" DD_AGENT_MAJOR_VERSION=\"{{ agentmajorversion }}\" DD_AGENT_MINOR_VERSION=\"{{ agentminorversion }}\" bash -c \"$(curl -L \\\"${INSTALL_SCRIPT_URL}\\\" | sed -e \\\"s|tool: install_script|tool: aws_run_command|g\\\" -e \\\"s|variant=install_script_agent7|variant=aws_run_command-6.0|g\\\")\"",
-            "  DD_API_KEY=\"{{ apikey }}\" DD_SITE=\"{{ site }}\" DD_HOST_TAGS=\"{{ tags }}\" DD_HOSTNAME=\"{{ hostname }}\" DD_AGENT_MAJOR_VERSION=\"{{ agentmajorversion }}\" DD_AGENT_MINOR_VERSION=\"{{ agentminorversion }}\" bash -c \"$(curl -L \"$${INSTALL_SCRIPT_URL}\" | sed -e \"s|tool: install_script|tool: aws_run_command|g\" -e \"s|variant=install_script_agent7|variant=aws_run_command-6.0|g\")\"",
+            "  DD_API_KEY=\"{{ apikey }}\" DD_SITE=\"{{ site }}\" DD_HOST_TAGS=\"{{ tags }}\" DD_HOSTNAME=\"$hn\" DD_AGENT_MAJOR_VERSION=\"{{ agentmajorversion }}\" DD_AGENT_MINOR_VERSION=\"{{ agentminorversion }}\" bash -c \"$(curl -L \"$${INSTALL_SCRIPT_URL}\" | sed -e \"s|tool: install_script|tool: aws_run_command|g\" -e \"s|variant=install_script_agent7|variant=aws_run_command-6.0|g\")\"",
             "fi",
             "set +e"
           ]
@@ -140,21 +135,17 @@ resource "aws_ssm_document" "windows_datadog_agent" {
         type: String
         description: "(Optional) Specify the datadog site to use"
         default: ""
-      hostname:
-        type: String
-        description: "(Optional) Specify the hostname"
-        default: ""
       tags:
         type: String
         description: "(Optional) Specify a list of comma-separated tags"
         default: ""
       agentmajorversion:
         type: String
-        description: "(Optional) Specify the major version of the agent"
+        description: "(Optional) Specify the major version of the Datadog Agent"
         default: "7"
       agentminorversion:
         type: String
-        description: "(Optional) Specify the minor version of the agent"
+        description: "(Optional) Specify the minor version of the Datadog Agent"
         default: ""
     mainSteps:
     - action: aws:runPowerShellScript
@@ -227,10 +218,8 @@ resource "aws_ssm_document" "windows_datadog_agent" {
             $logDir = "C:\AwsSSM\DatadogWindowsAgent"
             New-Item -ItemType Directory -Force -Path $logDir
             $logPath = "$logDir\$logFileName"
-            $msiArgs = "/log $logPath OVERRIDE_INSTALLATION_METHOD=`"aws_run_command`" APIKEY=`"{{ apikey }}`" SITE=`"{{ site }}`" "
-            if ("{{ hostname }}") {
-              $msiArgs += "HOSTNAME=`"{{ hostname }}`" "
-            }
+            $hn = $env:COMPUTERNAME
+            $msiArgs = "/log $logPath OVERRIDE_INSTALLATION_METHOD=`"aws_run_command`" APIKEY=`"{{ apikey }}`" SITE=`"{{ site }}`" HOSTNAME=`"$hn`" "
             if ("{{ tags }}") {
               $msiArgs += "TAGS=`"{{ tags }}`" "
             }

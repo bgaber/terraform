@@ -55,24 +55,44 @@ The NOC team has complete control of when agent upgrades occur via the version-a
 
 ```
 Version,Approved
-7.63.3,No
+7.68.0,No
+7.67.1,Yes
+7.67.0,Yes
+7.66.1,Yes
+7.66.0,Yes
+7.65.2,Yes
+7.65.1,Yes
+7.65.0,Yes
+7.64.3,Yes
+7.64.2,Yes
+7.64.1,Yes
+7.64.0,Yes
+7.63.3,Yes
 7.63.2,Yes
 7.63.1,Yes
 7.63.0,Yes
-7.62.3,Yes
-7.62.2,Yes
 ```
 
 then nothing will happen because the latest version is not approved.  However, if the CSV file looks something like this:
 
 ```
 Version,Approved
+7.68.0,Yes
+7.67.1,Yes
+7.67.0,Yes
+7.66.1,Yes
+7.66.0,Yes
+7.65.2,Yes
+7.65.1,Yes
+7.65.0,Yes
+7.64.3,Yes
+7.64.2,Yes
+7.64.1,Yes
+7.64.0,Yes
 7.63.3,Yes
 7.63.2,Yes
 7.63.1,Yes
 7.63.0,Yes
-7.62.3,Yes
-7.62.2,Yes
 ```
 
 then the agent upgrade will occur because the latest version is approved.
@@ -177,6 +197,13 @@ sso_role_name = AdministratorAccess
 region = us-east-1
 output = json
 
+[profile fedramp-network-prd]
+sso_session = fedramp-session
+sso_account_id = 104299473261
+sso_role_name = AdministratorAccess
+region = us-east-1
+output = json
+
 [profile fedramp-security]
 sso_session = fedramp-session
 sso_account_id = 980921753767
@@ -252,92 +279,95 @@ Athena is used to make SQL calls of the version-approvals.csv file which is loca
 
 ## Systems Managager (SSM)
 
-A SSM Document is required that contains the logic to upgrade the Datadog agent on the EC2 instances.  AWS already provides a Datadog SSM Document to install the latest version of the Datadog agent on the EC2 instances.  I cloned that Document and then modified it to accept the passing of `agentmajorversion` and `agentminorversion`.  The code snippet below shows what I added to my custom Datadog SSM Document called **automated-datadog-agent-upgrade**
+A SSM Document is required that contains the logic to install or upgrade the Datadog agent on a EC2 instances.  AWS already provides a Datadog SSM Document to install the latest version of the Datadog agent on the EC2 instances.  I modelled my SSM Document on the AWS provided document and modified it to accept the passing of `agentmajorversion` and `agentminorversion` parameters and use the OS value for hostname.  The code snippet below shows the modifications I made to my custom Datadog SSM Document called **Install-Datadog-Agent-Linux**
 
 ```json
 {
   "schemaVersion": "2.2",
-  "description": "Install, update, or remove the datadog agent.",
-  "parameters": {
-    "action": {
-      "type": "String",
-      "description": "(Required) InstallOrUpgrade or Uninstall",
-      "default": "InstallOrUpgrade",
-      "allowedValues": [
-        "InstallOrUpgrade",
-        "Uninstall"
-      ]
-    },
-    "apikey": {
-      "type": "String",
-      "description": "(Required) Datadog API KEY"
-    },
-    "site": {
-      "type": "String",
-      "description": "(Optional) Specify the datadog site to use",
-      "default": ""
-    },
-    "hostname": {
-      "type": "String",
-      "description": "(Optional) Specify the hostname",
-      "default": ""
-    },
-    "tags": {
-      "type": "String",
-      "description": "(Optional) Specify a list of comma-seperated tags",
-      "default": ""
-    },
-    "agentmajorversion": {
-      "type": "String",
-      "description": "(Optional) Specify the major version of the agent",
-      "default": "7"
-    },
-    "agentminorversion": {
-      "type": "String",
-      "description": "(Optional) Specify the minor version of the agent",
-      "default": ""
-    }
-  },
-  "mainSteps": [
-    {
-      "action": "aws:runShellScript",
-      "precondition": {
-        "StringEquals": [
-          "{{ action }}",
-          "InstallOrUpgrade"
+    "description": "Update the Datadog agent only if it already installed.",
+    "parameters": {
+      "action": {
+        "type": "String",
+        "description": "(Required) Install or Upgrade",
+        "default": "Upgrade",
+        "allowedValues": [
+          "Install",
+          "Upgrade"
         ]
       },
-      "name": "AgentInstallation",
-      "inputs": {
-        "runCommand": [
-          "set -e",
-          "INSTALL_SCRIPT_URL=https://s3.amazonaws.com/dd-agent/scripts/install_script_agent7.sh",
-          "DD_API_KEY=\"{{ apikey }}\" DD_SITE=\"{{ site }}\" DD_HOST_TAGS=\"{{ tags }}\" DD_HOSTNAME=\"{{ hostname }}\" DD_AGENT_MAJOR_VERSION=\"{{ agentmajorversion }}\" DD_AGENT_MINOR_VERSION=\"{{ agentminorversion }}\" bash -c \"$(curl -L \"${INSTALL_SCRIPT_URL}\" | sed -e \"s|tool: install_script|tool: aws_run_command|g\" -e \"s|variant=install_script_agent7|variant=aws_run_command-6.0|g\")\"",
-          "set +e"
-        ]
+      "apikey": {
+        "type": "String",
+        "description": "(Required) Datadog API KEY"
+      },
+      "site": {
+        "type": "String",
+        "description": "(Optional) Specify the datadog site to use",
+        "default": ""
+      },
+      "tags": {
+        "type": "String",
+        "description": "(Optional) Specify a list of comma-separated tags",
+        "default": ""
+      },
+      "agentmajorversion": {
+        "type": "String",
+        "description": "(Optional) Specify the major version of the Datadog Agent",
+        "default": "7"
+      },
+      "agentminorversion": {
+        "type": "String",
+        "description": "(Optional) Specify the minor version of the Datadog Agent",
+        "default": ""
       }
     },
-    {
-      "action": "aws:runShellScript",
-      "precondition": {
-        "StringEquals": [
-          "{{ action }}",
-          "Uninstall"
-        ]
+    "mainSteps": [
+      {
+        "action": "aws:runShellScript",
+        "name": "DatadogAgentUpgrade",
+        "precondition": {
+          "StringEquals": ["platformType", "Linux"]
+        },
+        "name": "AgentUpgrade",
+        "inputs": {
+          "runCommand": [
+            "set -e",
+            "if [ \"{{ action }}\" = \"Upgrade\" ]; then",
+            "  # Check if datadog-agent is installed",
+            "  if systemctl status datadog-agent >/dev/null 2>&1; then",
+            "    echo 'Datadog agent is installed. Proceeding with upgrade ...'",
+            "    hn=$(hostname)",
+            "    INSTALL_SCRIPT_URL=https://s3.amazonaws.com/dd-agent/scripts/install_script_agent7.sh",
+            "    DD_API_KEY=\"{{ apikey }}\" DD_SITE=\"{{ site }}\" DD_HOST_TAGS=\"{{ tags }}\" DD_HOSTNAME=\"$hn\" DD_AGENT_MAJOR_VERSION=\"{{ agentmajorversion }}\" DD_AGENT_MINOR_VERSION=\"{{ agentminorversion }}\" bash -c \"$(curl -L \"$${INSTALL_SCRIPT_URL}\" | sed -e \"s|tool: install_script|tool: aws_run_command|g\" -e \"s|variant=install_script_agent7|variant=aws_run_command-6.0|g\")\"",
+            "  else",
+            "    echo 'Datadog agent not found. Skipping upgrade.'",
+            "  fi",
+            "fi",
+            "set +e"
+          ]
+        }
       },
-      "name": "AgentRemoval",
-      "inputs": {
-        "runCommand": [
-          "set -e",
-          "if command -v \"apt-get\"; then apt-get remove -y datadog-agent",
-          "elif command -v \"yum\"; then yum remove -y datadog-agent",
-          "elif command -v \"dnf\"; then dnf remove -y datadog-agent",
-          "elif command -v \"zypper\"; then zypper rm -y datadog-agent; fi",
-          "set +e"
-        ]
+      {
+        "action": "aws:runShellScript",
+        "name": "DatadogAgentInstallation",
+        "precondition": {
+          "StringEquals": ["platformType", "Linux"]
+        },
+        "name": "AgentInstall",
+        "inputs": {
+          "runCommand": [
+            "set -e",
+            "if [ \"{{ action }}\" = \"Install\" ]; then",
+            "  echo 'Proceeding with installation of Datadog Agent ...'",
+            "  hn=$(hostname)",
+            "  INSTALL_SCRIPT_URL=https://s3.amazonaws.com/dd-agent/scripts/install_script_agent7.sh",
+            "  DD_API_KEY=\"{{ apikey }}\" DD_SITE=\"{{ site }}\" DD_HOST_TAGS=\"{{ tags }}\" DD_HOSTNAME=\"$hn\" DD_AGENT_MAJOR_VERSION=\"{{ agentmajorversion }}\" DD_AGENT_MINOR_VERSION=\"{{ agentminorversion }}\" bash -c \"$(curl -L \"$${INSTALL_SCRIPT_URL}\" | sed -e \"s|tool: install_script|tool: aws_run_command|g\" -e \"s|variant=install_script_agent7|variant=aws_run_command-6.0|g\")\"",
+            "fi",
+            "set +e"
+          ]
+        }
       }
-    }
-  ]
+    ]
+  })
 }
 ```
 
@@ -353,11 +383,22 @@ provision the GitLab project and pipeline meant it was easier and predictable to
 
 # Testing
 
-Once this solution is deployed it can be tested from the AWS Lambda console by going to the `query-athena-lambda` Lambda function and using the native **Test** functionality.
+Once this solution is deployed it can be tested from the AWS Lambda console by going to the `automated-agent-installation` Lambda function and using the native **Test** functionality.
 
 ![Alt text](images/lambda-do-nothing.png?raw=true "Lambda output when latest agent version not approved")
 
 ![Alt text](images/lambda-do-something.png?raw=true "Lambda output when latest agent version is approved")
+
+# New AWS Accounts
+
+If a new AWS account needs to be incorporated into this module, here are the files that need to be modified:
+
+* /variables.tf
+* /terraform.tfvars
+* /provider.tf
+* /main.tf
+* /modules/eb-lambda/main.tf
+* /modules/ssm/variables.tf
 
 # Helpful commands
 
@@ -401,10 +442,12 @@ zip -r artifacts/requests-layer.zip python
 
 ## Create AWS IAM Role in each account that will be assumed by Lambda Function - DONE
 
-Follow Mike's example in https://gitlab.tecsysrd.cloud/ops/noc/iam-keys-rotation-check to deploy IAM Roles in all AWS accounts.
+## Follow Mike's example in https://gitlab.tecsysrd.cloud/ops/noc/iam-keys-rotation-check to deploy IAM Roles in all AWS accounts.
 
 ## Modify SSM Document so that is it shared to all AWS accounts - DONE
 
 ## Modify Lambda Function to call SSM Document in all AWS accounts - DONE
 
-## Use Guilherme's dd-monitor-auto-mute Lambda function to Mute Datadog Monitor
+## Use Guilherme's dd-monitor-auto-mute Lambda function to Mute Datadog Monitor - IN PROGRESS
+
+## Enhance with additin of SSM State Manager - IN PROGRESS

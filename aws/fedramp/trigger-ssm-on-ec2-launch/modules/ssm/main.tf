@@ -2,6 +2,11 @@ resource "aws_ssm_document" "linux_falcon_sensor" {
   name       = "Install-CrowdStrike-Falcon-Sensor-Linux"
   document_type = "Command"
 
+  permissions = {
+    type        = "Share"
+    account_ids = join(",", var.ssm_shared_account_ids)
+  }
+
   content = jsonencode({
     schemaVersion = "2.2"
     description   = "Install CrowdStrike Falcon Sensor on Linux."
@@ -41,6 +46,11 @@ resource "aws_ssm_document" "linux_falcon_sensor" {
 resource "aws_ssm_document" "windows_falcon_sensor" {
   name       = "Install-CrowdStrike-Falcon-Sensor-Windows"
   document_type = "Command"
+
+  permissions = {
+    type        = "Share"
+    account_ids = join(",", var.ssm_shared_account_ids)
+  }
 
   content = jsonencode({
     "schemaVersion": "2.2",

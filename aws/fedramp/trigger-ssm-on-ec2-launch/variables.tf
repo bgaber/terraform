@@ -64,6 +64,12 @@ variable "fedramp_network_profile" {
   type        = string
 }
 
+variable "fedramp_network_prd_profile" {
+  description = "AWS Credential File Profile"
+  default     = "fedramp-network-prd"
+  type        = string
+}
+
 variable "fedramp_security_profile" {
   description = "AWS Credential File Profile"
   default     = "fedramp-security"
