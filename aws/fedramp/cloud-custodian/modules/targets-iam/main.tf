@@ -3,175 +3,6 @@ locals {
     account_id  = data.aws_caller_identity.current.account_id
 }
 
-# Cloud Custodian Mailer IAM Service Account
-resource "aws_iam_user" "cc_mailer_service_account" {
-  name = var.cc_mailer_service_account
-}
-
-resource "aws_iam_user_policy_attachment" "cc_mailer_lambda_full_access_attach" {
-  user       = aws_iam_user.cc_mailer_service_account.name
-  policy_arn = "arn:aws:iam::aws:policy/AWSLambda_FullAccess"
-}
-
-# Inline IAM User Policy
-resource "aws_iam_user_policy" "cc_mailer_gitlab_access" {
-  name        = "GitLab_Runner_EventBridge_Access"
-  user        = aws_iam_user.cc_mailer_service_account.name
-
-  # Terraform's "jsonencode" function converts a
-  # Terraform expression result to valid JSON syntax.
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-        {
-          "Sid": "GitLabRunnerEventBridgePerms",
-          Effect: "Allow",
-          Action: [
-              "events:DescribeRule",
-              "events:PutRule",
-              "events:ListTargetsByRule",
-              "events:PutTargets"
-          ],
-          Resource: "*"
-        }
-    ]
-  })
-}
-
-resource "aws_iam_access_key" "cc_mailer_service_account" {
-  user    = aws_iam_user.cc_mailer_service_account.name
-}
-
-# Cloud Custodian IAM Service Account
-resource "aws_iam_user" "cc_service_account" {
-  name = var.cc_service_account
-}
-
-resource "aws_iam_user_policy_attachment" "cc_lambda_full_access_attach" {
-  user       = aws_iam_user.cc_service_account.name
-  policy_arn = "arn:aws:iam::aws:policy/AWSLambda_FullAccess"
-}
-
-# Inline IAM User Policy
-resource "aws_iam_user_policy" "cc_gitlab_access" {
-  name        = "GitLab_Runner_EventBridge_Access"
-  user        = aws_iam_user.cc_service_account.name
-
-  # Terraform's "jsonencode" function converts a
-  # Terraform expression result to valid JSON syntax.
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-        {
-          "Sid": "GitLabRunnerEventBridgePerms",
-          Effect: "Allow",
-          Action: [
-              "events:DescribeRule",
-              "events:PutRule",
-              "events:ListTargetsByRule",
-              "events:PutTargets"
-          ],
-          Resource: "*"
-        }
-    ]
-  })
-}
-
-resource "aws_iam_access_key" "cc_service_account" {
-  user    = aws_iam_user.cc_service_account.name
-}
-
-# Cloud Custodian Mailer IAM Role
-resource "aws_iam_role" "cc_mailer_role" {
-  name = var.cc_mailer_iam_role_name
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect : "Allow",
-        Principal : {
-          Service : "lambda.amazonaws.com"
-        },
-        Action : "sts:AssumeRole"
-      }
-    ]
-  })
-}
-
-resource "aws_iam_policy" "cc_mailer_policy" {
-  name        = var.cc_mailer_iam_policy_name
-  description = var.cc_mailer_iam_policy_description
-
-  # Terraform's "jsonencode" function converts a
-  # Terraform expression result to valid JSON syntax.
-  policy = jsonencode({
-    "Version": "2012-10-17",
-    "Statement": [
-      {
-        "Effect": "Allow",
-        "Action": [
-            "cloudwatch:GetMetricStatistics",
-            "cloudwatch:PutMetricData"
-        ],
-        "Resource": "*"
-      },
-      {
-        "Effect": "Allow",
-        "Action": [
-            "logs:CreateLogStream",
-            "logs:DescribeLogGroups",
-            "logs:DescribeLogStreams",
-            "logs:GetLogEvents",
-            "logs:FilterLogEvents",
-            "logs:CreateLogGroup",
-            "logs:PutLogEvents"
-        ],
-        "Resource": "*"
-      },
-      {
-        "Effect": "Allow",
-        "Action": [
-            "sqs:GetQueueUrl",
-            "sqs:ListDeadLetterSourceQueues",
-            "sqs:ReceiveMessage",
-            "sqs:DeleteMessage",
-            "sqs:GetQueueAttributes",
-            "sqs:ListQueueTags"
-        ],
-        "Resource": "arn:aws:sqs:us-east-1:805960120419:cloud-custodian"
-      },
-      {
-        "Effect": "Allow",
-        "Action": [
-            "sns:Publish"
-        ],
-        "Resource": "arn:aws:sns:us-east-1:805960120419:cloud-custodian-mailer"
-      },
-      {
-        "Effect": "Allow",
-        "Action": [
-            "ses:SendEmail",
-            "ses:SendRawEmail"
-        ],
-        "Resource": "*",
-        "Condition": {
-            "ForAllValues:StringLike": {
-                "ses:Recipients": [
-                    "*@tecsys.com"
-                ]
-            }
-        }
-      }
-    ]
-  })
-}
-
-resource "aws_iam_role_policy_attachment" "cc_mailer_attach" {
-  role       = aws_iam_role.cc_mailer_role.name
-  policy_arn = aws_iam_policy.cc_mailer_policy.arn
-}
-
 # Cloud Custodian IAM Role
 resource "aws_iam_role" "cc_role" {
   name = var.cc_iam_role_name
@@ -189,7 +20,7 @@ resource "aws_iam_role" "cc_role" {
       {
         Effect : "Allow",
         Principal : {
-          AWS : "arn:aws:iam::${local.account_id}:user/${var.cc_service_account}"
+          AWS : var.cc_trusted_user_arn
         },
         Action : "sts:AssumeRole"
       }
@@ -367,6 +198,7 @@ resource "aws_iam_policy" "cc_policy" {
           "sqs:ListQueues",
           "sqs:TagQueue",
           "sqs:UntagQueue",
+          "sqs:SendMessage",
           "directconnect:DescribeConnections",
           "fsx:DescribeFileSystems",
           "waf:ListWebACLs",
@@ -375,6 +207,9 @@ resource "aws_iam_policy" "cc_policy" {
           "iam:DeleteLoginProfile",
           "iam:DeactivateMFADevice",
           "iam:RemoveUserFromGroup",
+          "iam:GetUser",
+          "iam:GenerateServiceLastAccessedDetails",
+          "iam:GetServiceLastAccessedDetails",
           "iam:DeleteUser",
           "iam:DetachUserPolicy",
           "iam:DeleteAccessKey",
@@ -387,32 +222,10 @@ resource "aws_iam_policy" "cc_policy" {
           "batch:Describe*",
           "iam:List*",
           "acm:List*",
+          "acm:DescribeCertificate",
           "events:List*"
         ],
         Resource : "*"
-      }
-    ]
-  })
-}
-
-resource "aws_iam_policy" "cc_sqs_policy" {
-  name        = var.sqs_iam_policy_name
-  description = var.sqs_iam_policy_description
-
-  # Terraform's "jsonencode" function converts a
-  # Terraform expression result to valid JSON syntax.
-  policy = jsonencode({
-    Version : "2012-10-17",
-    Statement : [
-      {
-        Effect : "Allow",
-        Action : "iam:ListAccountAliases",
-        Resource : "*"
-      },
-      {
-        Effect : "Allow",
-        Action : "sqs:*",
-        Resource : "arn:aws:sqs:us-east-1:${local.account_id}:${var.cc_name}"
       }
     ]
   })
@@ -423,104 +236,7 @@ resource "aws_iam_role_policy_attachment" "cc_attach" {
   policy_arn = aws_iam_policy.cc_policy.arn
 }
 
-resource "aws_iam_role_policy_attachment" "sqs_attach" {
-  role       = aws_iam_role.cc_role.name
-  policy_arn = aws_iam_policy.cc_sqs_policy.arn
-}
-
-# Cloud Custodian Mailer Gitlab Pipeline Variables
-resource "gitlab_project_variable" "cc_mailer_aws_region" {
-  project   = var.cc_mailer_gitlab_repo_id
-  key       = "AWS_REGION"
-  value     = "us-east-1"
-  masked    = false
-  protected = false
-}
-
-resource "gitlab_project_variable" "aws_access_key_id" {
-  project   = var.cc_mailer_gitlab_repo_id
-  key       = "AWS_ACCESS_KEY_ID"
-  value     = aws_iam_access_key.cc_mailer_service_account.id
-  masked    = false
-  protected = false
-}
-
-resource "gitlab_project_variable" "cc_mailer_aws_secret_access_key" {
-  project   = var.cc_mailer_gitlab_repo_id
-  key       = "AWS_SECRET_ACCESS_KEY"
-  value     = aws_iam_access_key.cc_mailer_service_account.secret
-  masked    = true
-  protected = false
-}
-
-# Cloud Custodian Gitlab Pipeline Variables
-resource "gitlab_project_variable" "cc_aws_default_region" {
-  project   = var.cc_gitlab_repo_id
-  key       = "AWS_DEFAULT_REGION"
-  value     = "us-east-1"
-  masked    = false
-  protected = false
-}
-
-resource "gitlab_project_variable" "cc_aws_access_key_id" {
-  project   = var.cc_gitlab_repo_id
-  key       = "AWS_ACCESS_KEY_ID"
-  value     = aws_iam_access_key.cc_service_account.id
-  masked    = false
-  protected = false
-}
-
-resource "gitlab_project_variable" "cc_aws_secret_access_key" {
-  project   = var.cc_gitlab_repo_id
-  key       = "AWS_SECRET_ACCESS_KEY"
-  value     = aws_iam_access_key.cc_service_account.secret
-  masked    = true
-  protected = false
-}
-
 # Outputs
-output "cc_mailer_service_account_id" {
-  value = aws_iam_user.cc_mailer_service_account.id
-}
-
-output "cc_mailer_service_account_arn" {
-  value = aws_iam_user.cc_mailer_service_account.arn
-}
-
-output "cc_mailer_service_account_name" {
-  value = aws_iam_user.cc_mailer_service_account.name
-}
-
-output "cc_mailer_service_secret_id" {
-  value = aws_iam_access_key.cc_mailer_service_account.id
-}
-
-output "cc_mailer_service_secret_access_key" {
-  value = aws_iam_access_key.cc_mailer_service_account.secret
-  sensitive = true
-}
-
-output "cc_mailer_role_id" {
-  value = aws_iam_role.cc_mailer_role.id
-}
-
-output "cc_mailer_role_arn" {
-  value = aws_iam_role.cc_mailer_role.arn
-}
-
-output "cc_mailer_role_name" {
-  value = aws_iam_role.cc_mailer_role.name
-}
-
-output "cc_service_secret_id" {
-  value = aws_iam_access_key.cc_service_account.id
-}
-
-output "cc_service_secret_access_key" {
-  value = aws_iam_access_key.cc_service_account.secret
-  sensitive = true
-}
-
 output "cc_role_id" {
   value = aws_iam_role.cc_role.id
 }
