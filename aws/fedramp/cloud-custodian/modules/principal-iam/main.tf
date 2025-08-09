@@ -3,6 +3,7 @@ locals {
     account_id  = data.aws_caller_identity.current.account_id
 }
 
+# Group with common permissions for custodian and mailer
 resource "aws_iam_group" "cloud_custodian" {
   name = "cloud-custodian"
 }
@@ -16,6 +17,21 @@ resource "aws_iam_group_membership" "cloud_custodian" {
   ]
 
   group = aws_iam_group.cloud_custodian.name
+}
+
+# Group with cross account IAM Assume Role permissions
+resource "aws_iam_group" "cloud_custodian_cross_account" {
+  name = "cloud-custodian-cross_account"
+}
+
+resource "aws_iam_group_membership" "cloud_custodian_cross_account" {
+  name = "cloud-custodian-cross_account-group-membership"
+
+  users = [
+    aws_iam_user.cc_service_account.name,
+  ]
+
+  group = aws_iam_group.cloud_custodian_cross_account.name
 }
 
 # Cloud Custodian Mailer IAM Service Account
@@ -66,10 +82,10 @@ resource "aws_iam_group_policy" "cc_mailer_gitlab_access" {
   })
 }
 
-# Inline IAM User Policy
-resource "aws_iam_user_policy" "cc_cross_account_assume_role_premissions" {
+# Inline IAM Group Policy
+resource "aws_iam_group_policy" "cc_cross_account_assume_role_premissions" {
   name        = "cross-account-assume-role-permissions"
-  user        = aws_iam_user.cc_service_account.name
+  group        = aws_iam_group.cloud_custodian_cross_account.name
 
   # Terraform's "jsonencode" function converts a
   # Terraform expression result to valid JSON syntax.
