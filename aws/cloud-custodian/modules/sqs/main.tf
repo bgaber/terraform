@@ -17,9 +17,9 @@ resource "aws_sqs_queue_policy" "custodian_queue" {
       Effect = "Allow"
       Principal = {
         AWS: [
-          "arn:aws:iam::${local.account_id}:root",
-          "arn:aws:iam::502432545091:root",
-          "arn:aws:iam::413103028457:root"
+          "arn:aws:iam::${local.account_id}:role/cloud-custodian-role-assumed",
+          "arn:aws:iam::502432545091:role/cloud-custodian-role-assumed",
+          "arn:aws:iam::413103028457:role/cloud-custodian-role-assumed"
         ]
       }
       Action   = "SQS:*"

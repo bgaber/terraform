@@ -17,20 +17,20 @@ resource "aws_sqs_queue_policy" "custodian_queue" {
       Effect = "Allow"
       Principal = {
         AWS: [
-          "arn:aws:iam::${local.account_id}:root",
-          "arn:aws:iam::438979369891:root",
-          "arn:aws:iam::686255941416:root",
-          "arn:aws:iam::311141548321:root",
-          "arn:aws:iam::528757785295:root",
-          "arn:aws:iam::054037137415:root",
-          "arn:aws:iam::202533508444:root",
-          "arn:aws:iam::816069130447:root",
-          "arn:aws:iam::548813917035:root",
-          "arn:aws:iam::445567083790:root",
-          "arn:aws:iam::104299473261:root",
-          "arn:aws:iam::980921753767:root",
-          "arn:aws:iam::897722679597:root",
-          "arn:aws:iam::195665324256:root"
+          "arn:aws:iam::${local.account_id}:role/cloud-custodian-role-assumed",
+          "arn:aws:iam::438979369891:role/cloud-custodian-role-assumed",
+          "arn:aws:iam::686255941416:role/cloud-custodian-role-assumed",
+          "arn:aws:iam::311141548321:role/cloud-custodian-role-assumed",
+          "arn:aws:iam::528757785295:role/cloud-custodian-role-assumed",
+          "arn:aws:iam::054037137415:role/cloud-custodian-role-assumed",
+          "arn:aws:iam::202533508444:role/cloud-custodian-role-assumed",
+          "arn:aws:iam::816069130447:role/cloud-custodian-role-assumed",
+          "arn:aws:iam::548813917035:role/cloud-custodian-role-assumed",
+          "arn:aws:iam::445567083790:role/cloud-custodian-role-assumed",
+          "arn:aws:iam::104299473261:role/cloud-custodian-role-assumed",
+          "arn:aws:iam::980921753767:role/cloud-custodian-role-assumed",
+          "arn:aws:iam::897722679597:role/cloud-custodian-role-assumed",
+          "arn:aws:iam::195665324256:role/cloud-custodian-role-assumed"
         ]
       }
       Action   = "SQS:*"
