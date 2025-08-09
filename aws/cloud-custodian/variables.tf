@@ -21,3 +21,8 @@ variable "go_prod_soc_profile" {
   default     = "go-prod-soc"
   type        = string
 }
+
+variable "target_aws_accounts" {
+  description = "List of AWS account IDs for Cloud Custodian cross-account access"
+  type        = list(string)
+}

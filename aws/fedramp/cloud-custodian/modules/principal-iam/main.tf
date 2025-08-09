@@ -97,8 +97,8 @@ resource "aws_iam_group_policy" "cc_cross_account_assume_role_premissions" {
           Effect: "Allow",
           Action: "sts:AssumeRole",
           Resource: [
-            "arn:aws:iam::502432545091:role/cloud-custodian-role-assumed",
-            "arn:aws:iam::413103028457:role/cloud-custodian-role-assumed"
+            for acct in var.target_aws_accounts :
+            "arn:aws:iam::${acct}:role/cloud-custodian-role-assumed"
           ]
         }
     ]

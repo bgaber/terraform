@@ -16,11 +16,10 @@ resource "aws_sqs_queue_policy" "custodian_queue" {
       Sid    = "CloudCustodianSQSAccessPolicy"
       Effect = "Allow"
       Principal = {
-        AWS: [
-          "arn:aws:iam::${local.account_id}:role/cloud-custodian-role-assumed",
-          "arn:aws:iam::502432545091:role/cloud-custodian-role-assumed",
-          "arn:aws:iam::413103028457:role/cloud-custodian-role-assumed"
-        ]
+        AWS = concat(
+            ["arn:aws:iam::${local.account_id}:role/cloud-custodian-role-assumed"],
+            [for acct in var.target_aws_accounts : "arn:aws:iam::${acct}:role/cloud-custodian-role-assumed"]
+          )
       }
       Action   = "SQS:*"
       Resource = aws_sqs_queue.custodian_queue.arn

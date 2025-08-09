@@ -10,3 +10,17 @@ fedramp_network_prd_profile      = "fedramp-network-prd"
 fedramp_security_profile         = "fedramp-security"
 fedramp_tools_npri_profile       = "fedramp-tools-npri"
 fedramp_tools_prd_profile        = "fedramp-tools-prd"
+target_aws_accounts = [
+  "438979369891",
+  "686255941416",
+  "311141548321",
+  "528757785295",
+  "054037137415",
+  "202533508444",
+  "816069130447",
+  "548813917035",
+  "445567083790",
+  "104299473261",
+  "897722679597",
+  "195665324256"
+]

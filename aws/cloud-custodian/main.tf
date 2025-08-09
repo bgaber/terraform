@@ -4,6 +4,8 @@ module "sqs" {
   providers = {
     aws = aws.go_noc_rd
   }
+
+  target_aws_accounts = var.target_aws_accounts
 }
 
 module "principal_iam" {
@@ -14,6 +16,7 @@ module "principal_iam" {
   }
 
   sqs_arn = module.sqs.sqs_arn
+  target_aws_accounts = var.target_aws_accounts
 }
 
 output "principal_account_cloud_custodian_sqs_queue_arn" {

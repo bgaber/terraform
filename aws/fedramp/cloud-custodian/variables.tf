@@ -75,3 +75,8 @@ variable "fedramp_tools_prd_profile" {
   default     = "fedramp-tools-prd"
   type        = string
 }
+
+variable "target_aws_accounts" {
+  description = "List of AWS account IDs for Cloud Custodian cross-account access"
+  type        = list(string)
+}
