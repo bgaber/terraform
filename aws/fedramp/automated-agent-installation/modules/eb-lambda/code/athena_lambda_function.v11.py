@@ -47,44 +47,8 @@ def get_account_list(parameter_name):
 TARGET_ACCOUNTS = get_account_list("/automated_agent_installation/penultimate_accounts")
 TEST_ACCOUNTS   = get_account_list("/automated_agent_installation/latest_accounts")
 
-
-def get_param_store_value(param_name, target_account_id=None, role_name=None, region_name=AWS_REGION):
-    """
-    Fetch a Parameter Store SecureString from the same account OR another account
-    by assuming a role in that account.
-    
-    :param param_name: Name of the parameter
-    :param target_account_id: AWS Account ID where the parameter resides (optional)
-    :param role_name: Role name in target account to assume (optional, required if target_account_id is set)
-    :param region_name: AWS region
-    :return: Parameter value or None
-    """
-    # If cross-account, assume role
-    if target_account_id and role_name:
-        sts_client = boto3.client("sts")
-        role_arn = f"arn:aws:iam::{target_account_id}:role/{role_name}"
-
-        try:
-            creds = sts_client.assume_role(
-                RoleArn=role_arn,
-                RoleSessionName="ParamStoreSession"
-            )["Credentials"]
-
-            ssm_client = boto3.client(
-                "ssm",
-                region_name=region_name,
-                aws_access_key_id=creds["AccessKeyId"],
-                aws_secret_access_key=creds["SecretAccessKey"],
-                aws_session_token=creds["SessionToken"]
-            )
-        except Exception as e:
-            logger.error(f"Error assuming role {role_arn}: {e}")
-            return None
-    else:
-        # Same account
-        ssm_client = boto3.client("ssm", region_name=region_name)
-
-    # Now fetch the parameter
+def get_param_store_value(param_name, region_name=AWS_REGION):
+    ssm_client = boto3.client("ssm", region_name=region_name)
     try:
         response = ssm_client.get_parameter(
             Name=param_name,
@@ -92,11 +56,15 @@ def get_param_store_value(param_name, target_account_id=None, role_name=None, re
         )
         return response["Parameter"]["Value"]
     except ssm_client.exceptions.ParameterNotFound:
-        logger.error(f"Parameter not found: {param_name} in account {target_account_id or 'current'}")
+        logger.error(f"Parameter not found: {param_name} in region {region_name}")
         return None
-    except Exception as e:
-        logger.error(f"Error fetching parameter {param_name}: {e}")
-        return None
+
+DD_API_KEY         = get_param_store_value("DATADOG_API_KEY")
+DD_APPLICATION_KEY = get_param_store_value("DATADOG_APP_KEY")
+
+DATADOG_API_URL = f"https://api.{DD_SITE}/api/v1/downtime"
+HEADERS = {"Content-Type": "application/json", "DD-API-KEY": DD_API_KEY, "DD-APPLICATION-KEY": DD_APPLICATION_KEY}
+
 
 def get_assumed_client(svc, account_id, role_name, region):
     """Assume a role in another account and return an SSM client."""
@@ -186,7 +154,7 @@ def get_instances_by_tag(account_id, tag_key, tag_value):
     logger.info(f"Instances in Account {account_id} with tag key of {tag_key}: {instances}")
     return instances
 
-def create_datadog_downtime(instance_ids, DATADOG_API_URL, HEADERS):
+def create_datadog_downtime(instance_ids):
     """Create a Datadog downtime to mute monitoring."""
     try:
         payload = {
@@ -204,7 +172,7 @@ def create_datadog_downtime(instance_ids, DATADOG_API_URL, HEADERS):
         logger.error(f"Failed to mute Datadog monitoring: {e}")
         return None
 
-def remove_datadog_downtime(downtime_id, DATADOG_API_URL, HEADERS):
+def remove_datadog_downtime(downtime_id):
     """Remove Datadog downtime after upgrade."""
     try:
         response = requests.delete(f"{DATADOG_API_URL}/{downtime_id}", headers=HEADERS)
@@ -219,28 +187,16 @@ def send_ssm_command_cross_account(account_ids, role_name, region, version):
     global ec2_client
 
     for account_id in account_ids:
+        logger.info(f"AWS Account being processed: {account_id}")
         if account_id == boto3.client("sts").get_caller_identity()["Account"]:
             # Use local client for the prime account
             logger.info(f"Prime Account being processed: {account_id}")
-            logger.info(f"About to call get_param_store_value function")
-            DD_SITE            = get_param_store_value("DATADOG_SITE")
-            DD_API_KEY         = get_param_store_value("DATADOG_API_KEY")
-            DD_APPLICATION_KEY = get_param_store_value("DATADOG_APP_KEY")
             ssm_client = boto3.client("ssm", region)
             ec2_client = boto3.client("ec2", region)
         else:
             logger.info(f"Other Account being processed: {account_id}")
-            logger.info(f"About to call get_param_store_value function with these parameters: Account - {account_id}, Role - {role_name}")
-            DD_SITE            = get_param_store_value("DATADOG_SITE", account_id, role_name)
-            DD_API_KEY         = get_param_store_value("DATADOG_API_KEY", account_id, role_name)
-            DD_APPLICATION_KEY = get_param_store_value("DATADOG_APP_KEY", account_id, role_name)
             ssm_client = get_assumed_client("ssm", account_id, role_name, region)
             ec2_client = get_assumed_client("ec2", account_id, role_name, region)
-
-        DATADOG_API_URL = f"https://api.{DD_SITE}/api/v1/downtime"
-        HEADERS = {"Content-Type": "application/json", "DD-API-KEY": DD_API_KEY, "DD-APPLICATION-KEY": DD_APPLICATION_KEY}
-
-        logger.info(f"AWS Account being processed: {account_id}, Datadog Site: {DD_SITE}, Datadog API Key: {DD_API_KEY}, Datadog APP Key: {DD_APPLICATION_KEY}")
 
         instances = get_instances_by_tag(account_id, "datadog", "true")
         if not instances:
@@ -248,7 +204,7 @@ def send_ssm_command_cross_account(account_ids, role_name, region, version):
             continue
 
         if MUTE_ENABLED:
-            downtime_id = create_datadog_downtime(instances, DATADOG_API_URL, HEADERS)
+            downtime_id = create_datadog_downtime(instances)
 
         # Separate instances by OS type
         linux_instances = [i["InstanceId"] for i in instances if i["OS"].lower() == "linux"]
@@ -277,7 +233,6 @@ def send_ssm_command_cross_account(account_ids, role_name, region, version):
                 Parameters={
                     "action": ["Install"],
                     "apikey": [DD_API_KEY],
-                    "site": [DD_SITE],
                     "agentmajorversion": [agentmajorversion],
                     "agentminorversion": [agentminorversion],
                 }
@@ -287,18 +242,16 @@ def send_ssm_command_cross_account(account_ids, role_name, region, version):
 
         # Execute for Linux instances
         if linux_instances:
-            logger.info(f"AWS Account being processed: {account_id}, Linux instances: {linux_instances}")
             execute_ssm(linux_instances, LINUX_SSM_DOCUMENT_NAME)
 
         # Execute for Windows instances
         if windows_instances:
-            logger.info(f"AWS Account being processed: {account_id}, Windows instances: {windows_instances}")
             execute_ssm(windows_instances, WINDOWS_SSM_DOCUMENT_NAME)
 
         # Remove Datadog downtime after upgrade
         if downtime_id:
             time.sleep(int(MUTE_DURATION_IN_SECS))  # The Lambda function times out with time greater than this
-            remove_datadog_downtime(downtime_id, DATADOG_API_URL, HEADERS)
+            remove_datadog_downtime(downtime_id)
 
 def check_file_age():
     """Check if the CSV file is older than 30 days."""

@@ -95,17 +95,15 @@ resource "aws_iam_policy" "lambda_policy" {
         Action   = ["sts:AssumeRole"],
         Resource = [
           "arn:aws:iam::438979369891:role/${var.lambda_iam_assume_role_name}",
-          "arn:aws:iam::491085412189:role/${var.lambda_iam_assume_role_name}",
-          "arn:aws:iam::761018876945:role/${var.lambda_iam_assume_role_name}",
-          "arn:aws:iam::120569617426:role/${var.lambda_iam_assume_role_name}",
           "arn:aws:iam::686255941416:role/${var.lambda_iam_assume_role_name}",
           "arn:aws:iam::311141548321:role/${var.lambda_iam_assume_role_name}",
           "arn:aws:iam::528757785295:role/${var.lambda_iam_assume_role_name}",
           "arn:aws:iam::054037137415:role/${var.lambda_iam_assume_role_name}",
           "arn:aws:iam::202533508444:role/${var.lambda_iam_assume_role_name}",
           "arn:aws:iam::816069130447:role/${var.lambda_iam_assume_role_name}",
-          "arn:aws:iam::445567083790:role/${var.lambda_iam_assume_role_name}",
           "arn:aws:iam::104299473261:role/${var.lambda_iam_assume_role_name}",
+          "arn:aws:iam::445567083790:role/${var.lambda_iam_assume_role_name}",
+          "arn:aws:iam::548813917035:role/${var.lambda_iam_assume_role_name}",
           "arn:aws:iam::897722679597:role/${var.lambda_iam_assume_role_name}",
           "arn:aws:iam::195665324256:role/${var.lambda_iam_assume_role_name}"
         ]
@@ -309,7 +307,6 @@ resource "aws_lambda_function" "athena_lambda" {
       SNS_TOPIC_ARN             = var.sns_topic_arn
       S3_BUCKET                 = var.s3_source_bucket_name
       S3_KEY                    = "${var.athena_prefix}/${var.athena_csv_key}"
-      DD_SITE                   = "datadoghq.com"
       LINUX_SSM_DOCUMENT_NAME   = var.linux_ssm_document_arn
       WINDOWS_SSM_DOCUMENT_NAME = var.windows_ssm_document_arn
       MUTE_ENABLED              = false
@@ -402,6 +399,11 @@ output "aws_lambda_function_arn" {
 
 output "aws_lambda_function_invoke_arn" {
   value = aws_lambda_function.athena_lambda.invoke_arn
+}
+
+output "lambda_role_arn" {
+  description = "ARN of the Lambda execution role"
+  value       = aws_iam_role.lambda_role.arn
 }
 
 output "aws_scheduler_schedule_id" {

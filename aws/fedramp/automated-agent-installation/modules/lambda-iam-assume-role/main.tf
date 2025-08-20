@@ -34,7 +34,8 @@ resource "aws_iam_policy" "lambda_policy" {
           "ssm:ListCommandInvocations",
           "ssm:GetCommandInvocation",
           "ssm:DescribeInstanceInformation",
-          "ssm:DescribeDocument"
+          "ssm:DescribeDocument",
+          "ssm:GetParameter"
         ]
         Resource = "*"
       },

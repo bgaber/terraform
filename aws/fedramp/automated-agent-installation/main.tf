@@ -38,7 +38,7 @@ module "fedramp_security_eb_lambda" {
 
 module "fedramp_agencysim_npri_iam_role" {
   source = "./modules/lambda-iam-assume-role"
-  lambda_role_arn    = "arn:aws:iam::${var.lambda_account}:role/${var.lambda_role_name}" ## ARN from FedRAMP Security account
+  lambda_role_arn    = module.fedramp_security_eb_lambda.lambda_role_arn ## ARN from FedRAMP Security account
   lambda_assume_role = var.lambda_iam_assume_role_name
   lambda_policy      = var.lambda_iam_assume_role_policy_name
   providers = {
@@ -55,66 +55,9 @@ module "fedramp_agencysim_npri_state_manager" {
   }
 }
 
-module "fedramp_edgenw_npr_iam_role" {
-  source = "./modules/lambda-iam-assume-role"
-  lambda_role_arn    = "arn:aws:iam::${var.lambda_account}:role/${var.lambda_role_name}" ## ARN from FedRAMP Security account
-  lambda_assume_role = var.lambda_iam_assume_role_name
-  lambda_policy      = var.lambda_iam_assume_role_policy_name
-  providers = {
-    aws = aws.fedramp_edge_nw_npr
-  }
-}
-
-module "fedramp_edge_nw_npr_state_manager" {
-  linux_ssm_document_name = module.fedramp_security_ssm.linux_ssm_document_arn
-  windows_ssm_document_name = module.fedramp_security_ssm.windows_ssm_document_arn
-  source = "./modules/state-manager"
-  providers = {
-    aws = aws.fedramp_edge_nw_npr
-  }
-}
-
-module "fedramp_edgenw_npri_iam_role" {
-  source = "./modules/lambda-iam-assume-role"
-  lambda_role_arn    = "arn:aws:iam::${var.lambda_account}:role/${var.lambda_role_name}" ## ARN from FedRAMP Security account
-  lambda_assume_role = var.lambda_iam_assume_role_name
-  lambda_policy      = var.lambda_iam_assume_role_policy_name
-  providers = {
-    aws = aws.fedramp_edge_nw_npri
-  }
-}
-
-module "fedramp_edge_nw_npri_state_manager" {
-  linux_ssm_document_name = module.fedramp_security_ssm.linux_ssm_document_arn
-  windows_ssm_document_name = module.fedramp_security_ssm.windows_ssm_document_arn
-  source = "./modules/state-manager"
-  providers = {
-    aws = aws.fedramp_edge_nw_npri
-  }
-}
-
-module "fedramp_edgenw_prd_iam_role" {
-  source = "./modules/lambda-iam-assume-role"
-  lambda_role_arn    = "arn:aws:iam::${var.lambda_account}:role/${var.lambda_role_name}" ## ARN from FedRAMP Security account
-  lambda_assume_role = var.lambda_iam_assume_role_name
-  lambda_policy      = var.lambda_iam_assume_role_policy_name
-  providers = {
-    aws = aws.fedramp_edge_nw_prd
-  }
-}
-
-module "fedramp_edge_nw_prd_state_manager" {
-  linux_ssm_document_name = module.fedramp_security_ssm.linux_ssm_document_arn
-  windows_ssm_document_name = module.fedramp_security_ssm.windows_ssm_document_arn
-  source = "./modules/state-manager"
-  providers = {
-    aws = aws.fedramp_edge_nw_prd
-  }
-}
-
 module "fedramp_integration_npr_iam_role" {
   source = "./modules/lambda-iam-assume-role"
-  lambda_role_arn    = "arn:aws:iam::${var.lambda_account}:role/${var.lambda_role_name}" ## ARN from FedRAMP Security account
+  lambda_role_arn    = module.fedramp_security_eb_lambda.lambda_role_arn ## ARN from FedRAMP Security account
   lambda_assume_role = var.lambda_iam_assume_role_name
   lambda_policy      = var.lambda_iam_assume_role_policy_name
   providers = {
@@ -133,7 +76,7 @@ module "fedramp_integration_npr_state_manager" {
 
 module "fedramp_integration_npri_iam_role" {
   source = "./modules/lambda-iam-assume-role"
-  lambda_role_arn    = "arn:aws:iam::${var.lambda_account}:role/${var.lambda_role_name}" ## ARN from FedRAMP Security account
+  lambda_role_arn    = module.fedramp_security_eb_lambda.lambda_role_arn ## ARN from FedRAMP Security account
   lambda_assume_role = var.lambda_iam_assume_role_name
   lambda_policy      = var.lambda_iam_assume_role_policy_name
   providers = {
@@ -152,7 +95,7 @@ module "fedramp_integration_npri_state_manager" {
 
 module "fedramp_integration_prd_iam_role" {
   source = "./modules/lambda-iam-assume-role"
-  lambda_role_arn    = "arn:aws:iam::${var.lambda_account}:role/${var.lambda_role_name}" ## ARN from FedRAMP Security account
+  lambda_role_arn    = module.fedramp_security_eb_lambda.lambda_role_arn ## ARN from FedRAMP Security account
   lambda_assume_role = var.lambda_iam_assume_role_name
   lambda_policy      = var.lambda_iam_assume_role_policy_name
   providers = {
@@ -171,7 +114,7 @@ module "fedramp_integration_prd_state_manager" {
 
 module "fedramp_k8s_npr_iam_role" {
   source = "./modules/lambda-iam-assume-role"
-  lambda_role_arn    = "arn:aws:iam::${var.lambda_account}:role/${var.lambda_role_name}" ## ARN from FedRAMP Security account
+  lambda_role_arn    = module.fedramp_security_eb_lambda.lambda_role_arn ## ARN from FedRAMP Security account
   lambda_assume_role = var.lambda_iam_assume_role_name
   lambda_policy      = var.lambda_iam_assume_role_policy_name
   providers = {
@@ -190,7 +133,7 @@ module "fedramp_k8s_npr_state_manager" {
 
 module "fedramp_k8s_npri_iam_role" {
   source = "./modules/lambda-iam-assume-role"
-  lambda_role_arn    = "arn:aws:iam::${var.lambda_account}:role/${var.lambda_role_name}" ## ARN from FedRAMP Security account
+  lambda_role_arn    = module.fedramp_security_eb_lambda.lambda_role_arn ## ARN from FedRAMP Security account
   lambda_assume_role = var.lambda_iam_assume_role_name
   lambda_policy      = var.lambda_iam_assume_role_policy_name
   providers = {
@@ -209,7 +152,7 @@ module "fedramp_k8s_npri_state_manager" {
 
 module "fedramp_k8s_prd_iam_role" {
   source = "./modules/lambda-iam-assume-role"
-  lambda_role_arn    = "arn:aws:iam::${var.lambda_account}:role/${var.lambda_role_name}" ## ARN from FedRAMP Security account
+  lambda_role_arn    = module.fedramp_security_eb_lambda.lambda_role_arn ## ARN from FedRAMP Security account
   lambda_assume_role = var.lambda_iam_assume_role_name
   lambda_policy      = var.lambda_iam_assume_role_policy_name
   providers = {
@@ -226,28 +169,47 @@ module "fedramp_k8s_prd_state_manager" {
   }
 }
 
-module "fedramp_network_iam_role" {
+module "fedramp_network_npr_iam_role" {
   source = "./modules/lambda-iam-assume-role"
-  lambda_role_arn    = "arn:aws:iam::${var.lambda_account}:role/${var.lambda_role_name}" ## ARN from FedRAMP Security account
+  lambda_role_arn    = module.fedramp_security_eb_lambda.lambda_role_arn ## ARN from FedRAMP Security account
   lambda_assume_role = var.lambda_iam_assume_role_name
   lambda_policy      = var.lambda_iam_assume_role_policy_name
   providers = {
-    aws = aws.fedramp_network
+    aws = aws.fedramp_network_npr
   }
 }
 
-module "fedramp_network_state_manager" {
+module "fedramp_network_npr_state_manager" {
   linux_ssm_document_name = module.fedramp_security_ssm.linux_ssm_document_arn
   windows_ssm_document_name = module.fedramp_security_ssm.windows_ssm_document_arn
   source = "./modules/state-manager"
   providers = {
-    aws = aws.fedramp_network
+    aws = aws.fedramp_network_npr
+  }
+}
+
+module "fedramp_network_npri_iam_role" {
+  source = "./modules/lambda-iam-assume-role"
+  lambda_role_arn    = module.fedramp_security_eb_lambda.lambda_role_arn ## ARN from FedRAMP Security account
+  lambda_assume_role = var.lambda_iam_assume_role_name
+  lambda_policy      = var.lambda_iam_assume_role_policy_name
+  providers = {
+    aws = aws.fedramp_network_npri
+  }
+}
+
+module "fedramp_network_npri_state_manager" {
+  linux_ssm_document_name = module.fedramp_security_ssm.linux_ssm_document_arn
+  windows_ssm_document_name = module.fedramp_security_ssm.windows_ssm_document_arn
+  source = "./modules/state-manager"
+  providers = {
+    aws = aws.fedramp_network_npri
   }
 }
 
 module "fedramp_network_prd_iam_role" {
   source = "./modules/lambda-iam-assume-role"
-  lambda_role_arn    = "arn:aws:iam::${var.lambda_account}:role/${var.lambda_role_name}" ## ARN from FedRAMP Security account
+  lambda_role_arn    = module.fedramp_security_eb_lambda.lambda_role_arn ## ARN from FedRAMP Security account
   lambda_assume_role = var.lambda_iam_assume_role_name
   lambda_policy      = var.lambda_iam_assume_role_policy_name
   providers = {
@@ -266,7 +228,7 @@ module "fedramp_network_prd_state_manager" {
 
 module "fedramp_tools_npri_iam_role" {
   source = "./modules/lambda-iam-assume-role"
-  lambda_role_arn    = "arn:aws:iam::${var.lambda_account}:role/${var.lambda_role_name}" ## ARN from FedRAMP Security account
+  lambda_role_arn    = module.fedramp_security_eb_lambda.lambda_role_arn ## ARN from FedRAMP Security account
   lambda_assume_role = var.lambda_iam_assume_role_name
   lambda_policy      = var.lambda_iam_assume_role_policy_name
   providers = {
@@ -285,7 +247,7 @@ module "fedramp_tools_npri_state_manager" {
 
 module "fedramp_tools_prd_iam_role" {
   source = "./modules/lambda-iam-assume-role"
-  lambda_role_arn    = "arn:aws:iam::${var.lambda_account}:role/${var.lambda_role_name}" ## ARN from FedRAMP Security account
+  lambda_role_arn    = module.fedramp_security_eb_lambda.lambda_role_arn ## ARN from FedRAMP Security account
   lambda_assume_role = var.lambda_iam_assume_role_name
   lambda_policy      = var.lambda_iam_assume_role_policy_name
   providers = {
@@ -316,6 +278,10 @@ output "fedramp_security_linux_ssm_document_arn" {
 
 output "fedramp_security_windows_ssm_document_arn" {
   value = module.fedramp_security_ssm.windows_ssm_document_arn
+}
+
+output "fedramp_security_s3_source_bucket_arn" {
+  value = module.fedramp_security_eb_lambda.aws_s3_source_bucket_arn
 }
 
 output "fedramp_security_lambda_function_arn" {
