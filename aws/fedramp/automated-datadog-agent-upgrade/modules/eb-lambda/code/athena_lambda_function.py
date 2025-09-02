@@ -322,7 +322,7 @@ def send_sns_notification():
 
 def lambda_handler(event, context):
     """Main Lambda function execution."""
-    logger.info(f"Version 1.2.0")
+    logger.info(f"Version 2.0.0")
     # Get the latest and penultimate versions and approval status
     latest_version, penultimate_version, approved_status = query_athena()
 

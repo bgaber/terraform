@@ -75,7 +75,7 @@ variable "lambda_logging_policy_name" {
 
 variable "automated_agent_installation_lambda_name" {
   description = "Lambda Function Name"
-  default     = "automated-agent-installation"
+  default     = "automated-datadog-agent-upgrade"
   type        = string
 }
 

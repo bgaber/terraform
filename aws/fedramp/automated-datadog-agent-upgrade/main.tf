@@ -122,14 +122,15 @@ module "fedramp_k8s_npr_iam_role" {
   }
 }
 
-module "fedramp_k8s_npr_state_manager" {
-  linux_ssm_document_name = module.fedramp_security_ssm.linux_ssm_document_arn
-  windows_ssm_document_name = module.fedramp_security_ssm.windows_ssm_document_arn
-  source = "./modules/state-manager"
-  providers = {
-    aws = aws.fedramp_k8s_npr
-  }
-}
+# State Manager is commented out because this is a Kubernetes account and we do not want the Datadog agent installed on K8s worker nodes.
+# module "fedramp_k8s_npr_state_manager" {
+#   linux_ssm_document_name = module.fedramp_security_ssm.linux_ssm_document_arn
+#   windows_ssm_document_name = module.fedramp_security_ssm.windows_ssm_document_arn
+#   source = "./modules/state-manager"
+#   providers = {
+#     aws = aws.fedramp_k8s_npr
+#   }
+# }
 
 module "fedramp_k8s_npri_iam_role" {
   source = "./modules/lambda-iam-assume-role"
@@ -141,14 +142,15 @@ module "fedramp_k8s_npri_iam_role" {
   }
 }
 
-module "fedramp_k8s_npri_state_manager" {
-  linux_ssm_document_name = module.fedramp_security_ssm.linux_ssm_document_arn
-  windows_ssm_document_name = module.fedramp_security_ssm.windows_ssm_document_arn
-  source = "./modules/state-manager"
-  providers = {
-    aws = aws.fedramp_k8s_npri
-  }
-}
+# State Manager is commented out because this is a Kubernetes account and we do not want the Datadog agent installed on K8s worker nodes.
+# module "fedramp_k8s_npri_state_manager" {
+#   linux_ssm_document_name = module.fedramp_security_ssm.linux_ssm_document_arn
+#   windows_ssm_document_name = module.fedramp_security_ssm.windows_ssm_document_arn
+#   source = "./modules/state-manager"
+#   providers = {
+#     aws = aws.fedramp_k8s_npri
+#   }
+# }
 
 module "fedramp_k8s_prd_iam_role" {
   source = "./modules/lambda-iam-assume-role"
@@ -160,14 +162,15 @@ module "fedramp_k8s_prd_iam_role" {
   }
 }
 
-module "fedramp_k8s_prd_state_manager" {
-  linux_ssm_document_name = module.fedramp_security_ssm.linux_ssm_document_arn
-  windows_ssm_document_name = module.fedramp_security_ssm.windows_ssm_document_arn
-  source = "./modules/state-manager"
-  providers = {
-    aws = aws.fedramp_k8s_prd
-  }
-}
+# State Manager is commented out because this is a Kubernetes account and we do not want the Datadog agent installed on K8s worker nodes.
+# module "fedramp_k8s_prd_state_manager" {
+#   linux_ssm_document_name = module.fedramp_security_ssm.linux_ssm_document_arn
+#   windows_ssm_document_name = module.fedramp_security_ssm.windows_ssm_document_arn
+#   source = "./modules/state-manager"
+#   providers = {
+#     aws = aws.fedramp_k8s_prd
+#   }
+# }
 
 module "fedramp_network_npr_iam_role" {
   source = "./modules/lambda-iam-assume-role"

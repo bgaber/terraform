@@ -1,20 +1,24 @@
-# FED-###: Automated deployment of Datadog agents onto customer EC2 servers
+# Automated upgrade of Datadog agents on EC2 servers
 
-![AWS EventBridge](https://img.shields.io/badge/AWS-EventBridge-orange?logo=amazon-aws)
-![AWS Lambda](https://img.shields.io/badge/AWS-Lambda-orange?logo=amazon-aws)
-![AWS SSM](https://img.shields.io/badge/AWS-SSM-orange?logo=amazon-aws)
-![AWS SNS](https://img.shields.io/badge/AWS-SNS-orange?logo=amazon-aws)
-![Datadog](https://img.shields.io/badge/Datadog-Mute-orange?logo=datadog)
+[![AWS](https://custom-icon-badges.demolab.com/badge/AWS%20IAM-%23FF9900.svg?logo=aws&logoColor=white)](#)
+[![AWS](https://custom-icon-badges.demolab.com/badge/AWS%20EventBridge-%23FF9900.svg?logo=aws&logoColor=white)](#)
+[![AWS Lambda](https://custom-icon-badges.demolab.com/badge/AWS%20Lambda-%23FF9900.svg?logo=aws-lambda&logoColor=white)](#)
+[![AWS](https://custom-icon-badges.demolab.com/badge/AWS%20Athena-%23FF9900.svg?logo=aws&logoColor=white)](#)
+[![AWS](https://custom-icon-badges.demolab.com/badge/AWS%20S3-%23FF9900.svg?logo=aws&logoColor=white)](#)
+[![AWS](https://custom-icon-badges.demolab.com/badge/AWS%20SSM-%23FF9900.svg?logo=aws&logoColor=white)](#)
+[![AWS](https://custom-icon-badges.demolab.com/badge/AWS%20Parameter%20Store-%23FF9900.svg?logo=aws&logoColor=white)](#)
+![Datadog](https://img.shields.io/badge/Datadog-632CA6?logo=datadog&logoColor=white)
+![Terraform](https://img.shields.io/badge/Terraform-IaC-5C4EE5?logo=terraform&logoColor=white)
 
 # Overview
 
-The purpose of this solution is to automatically deploy the latest version of the Datadog agent to EC2 instances in a testing account and the penultimate version of the Datadog agent to EC2 instances in all customer accounts.
+The purpose of this multi-account solution is to automatically upgrade to the latest version of the Datadog agent on all EC2 instances in a testing account and the penultimate version of the Datadog agent on all EC2 instances in all customer accounts.
 
 # Architecture
 
-![Alt text](images/automated-agent-installation-poc.png?raw=true "Automated Datadog Agent Installation Architecture Diagram")
+![Alt text](images/automated-agent-installation-poc.png?raw=true "Automated Datadog Agent Upgrade Architecture Diagram")
 
-As shown in the diagram above, this solution is primarily comprised AWS Services.  The list below shows all of the solution components:
+As shown in the diagram above, this solution is primarily comprised AWS Services.  The solution components are listed below:
 
 * AWS EventBridge Scheduler
 * AWS Lambda Function
@@ -22,7 +26,8 @@ As shown in the diagram above, this solution is primarily comprised AWS Services
 * AWS Glue
 * AWS S3
 * AWS Simple Notification Service (SNS)
-* AWS Systems Managager (SSM)
+* AWS Systems Manager (SSM) Documents (Linux and Windows)
+* SSM State Manager
 * Datadog
 
 ## High-level Solution Workflow
@@ -47,7 +52,9 @@ graph TD
 
     - If latest version is approved then mute Datadog and trigger SSM Run Command​
 
-3. SSM Run Command will install penultimate version of agent on customer EC2 instances and latest version of agent on Staging Patch EC2 instances.​
+3. SSM Run Command will upgrade to the penultimate version of agent on customer EC2 instances and latest version of agent on Staging Patch EC2 instances.​
+
+4. SSM State Manager will install the penultimate version of the agent on non-K8s worker node EC2 instances.
 
 ## Importance of the version-approvals.csv file
 
@@ -102,12 +109,181 @@ triggers the Lambda function the Datadog agents will be upgraded.
 
 # Setup
 
-This section explains any components that require a substantial setup.
+This section explains any components that require a substantial setup before the solution can execute successfully.
 
-## AWS Credential Profiles Setup required by Terraform for multi-account installation of SSM Document
+To understand this setup it is necessary to understand how the Lambda function works with the SSM Documents (Linux and Windows).  The Lambda function only exists on one account, the parent account.  This parent account is also the owner of the two SSM Documents.  The SSM Document is shared by this Parent account to all target accounts.  Also, one account must be desginated as the account where the latest version of the agent is installed for testing and verification.  With this understanding lets understand some of the Terraform files.
 
-In order for this Terraform module to provision the AWS SSM Document resource on every FedRAMP AWS account a AWS config file needs to be created that works with AWS Identity Center.
-At the time this document was written there were ten FedRAMP AWS accounts and the following is the `~/.aws/config` required for these accounts:
+## Terraform module root main.tf file setup
+
+At the time this document was written the Security account was selected as the Parent account.  Thus, the top of the root `main.tf` file looks like this:
+
+```
+module "fedramp_security_ssm" {
+  source = "./modules/ssm"
+  providers = {
+    aws = aws.fedramp_security
+  }
+}
+
+module "fedramp_security_state_manager" {
+  linux_ssm_document_name = module.fedramp_security_ssm.linux_ssm_document_id
+  windows_ssm_document_name = module.fedramp_security_ssm.windows_ssm_document_id
+  source = "./modules/state-manager"
+  providers = {
+    aws = aws.fedramp_security
+  }
+}
+
+module "fedramp_security_sns" {
+  source = "./modules/sns"
+  providers = {
+    aws = aws.fedramp_security
+  }
+}
+
+module "fedramp_security_eb_lambda" {
+  linux_ssm_document_name     = module.fedramp_security_ssm.linux_ssm_document_id
+  linux_ssm_document_arn      = module.fedramp_security_ssm.linux_ssm_document_arn
+  windows_ssm_document_name   = module.fedramp_security_ssm.windows_ssm_document_id
+  windows_ssm_document_arn    = module.fedramp_security_ssm.windows_ssm_document_arn
+  sns_topic_arn               = module.fedramp_security_sns.sns_topic_arn
+  lambda_role_name            = var.lambda_role_name
+  lambda_policy_name          = var.lambda_policy_name
+  lambda_iam_assume_role_name = var.lambda_iam_assume_role_name
+  source = "./modules/eb-lambda"
+  providers = {
+    aws = aws.fedramp_security
+  }
+}
+...
+...
+```
+
+This is the only account that uses the ssm, sns and eb-lambda modules because the SSM Documents, SNS Topic, Event Bridge rule and Lambda function only exist in the Security account.  All other accounts call two modules in the root `main.tf` file as shown below:
+
+```
+module "fedramp_agencysim_npri_iam_role" {
+  source = "./modules/lambda-iam-assume-role"
+  lambda_role_arn    = module.fedramp_security_eb_lambda.lambda_role_arn ## ARN from FedRAMP Security account
+  lambda_assume_role = var.lambda_iam_assume_role_name
+  lambda_policy      = var.lambda_iam_assume_role_policy_name
+  providers = {
+    aws = aws.fedramp_agencysim_npri
+  }
+}
+
+module "fedramp_agencysim_npri_state_manager" {
+  linux_ssm_document_name = module.fedramp_security_ssm.linux_ssm_document_arn
+  windows_ssm_document_name = module.fedramp_security_ssm.windows_ssm_document_arn
+  source = "./modules/state-manager"
+  providers = {
+    aws = aws.fedramp_agencysim_npri
+  }
+}
+...
+...
+```
+
+These two modules create the necessary IAM Role that will be assumed by the Lambda function and creates the SSM State Manager association with the shared SSM Documents.  Notice that the three Kubernetes accounts (fedramp_k8s_npr,fedramp_k8s_npri and fedramp_k8s_prd) do not call the State Manager module because we do not want the Datadog agent installed on K8s worker nodes.
+
+## Terraform eb-lambda module main.tf file setup
+
+In the Lambda function's IAM Policy each target account IAM role must be specified as assumable so that it can be assumed by the Lambda function running in the parent account.  This IAM Policy is defined in the eb-lambda module's `main.tf` file and currently looks like this:
+
+```
+resource "aws_iam_policy" "lambda_policy" {
+  name        = var.lambda_policy_name
+  description = "Grants Lambda access to Athena and S3 query results"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect   = "Allow",
+        Action   = ["sts:AssumeRole"],
+        Resource = [
+          "arn:aws:iam::438979369891:role/${var.lambda_iam_assume_role_name}",
+          "arn:aws:iam::686255941416:role/${var.lambda_iam_assume_role_name}",
+          "arn:aws:iam::311141548321:role/${var.lambda_iam_assume_role_name}",
+          "arn:aws:iam::528757785295:role/${var.lambda_iam_assume_role_name}",
+          "arn:aws:iam::054037137415:role/${var.lambda_iam_assume_role_name}",
+          "arn:aws:iam::202533508444:role/${var.lambda_iam_assume_role_name}",
+          "arn:aws:iam::816069130447:role/${var.lambda_iam_assume_role_name}",
+          "arn:aws:iam::104299473261:role/${var.lambda_iam_assume_role_name}",
+          "arn:aws:iam::445567083790:role/${var.lambda_iam_assume_role_name}",
+          "arn:aws:iam::548813917035:role/${var.lambda_iam_assume_role_name}",
+          "arn:aws:iam::897722679597:role/${var.lambda_iam_assume_role_name}",
+          "arn:aws:iam::195665324256:role/${var.lambda_iam_assume_role_name}"
+        ]
+      },
+...
+...
+```
+
+It is important to notice that the parent account (Security) is not in this IAM Policy.  In the future if accounts are added or removed this IAM Policy will have to be modified.
+
+## Terraform ssm module variables.tf file setup
+
+The two SSM Documents (Linux and Windows) are created in and owned by the Parent (Security) account.  Therefore, they must be shared with all target accounts.  This is done in the ssm module's `variables.tf` file shown below:
+
+```
+variable "ssm_shared_account_ids" {
+  description = "List of AWS account IDs to share the SSM document with"
+  type        = list(string)
+  default     = [
+    "438979369891",
+    "686255941416",
+    "311141548321",
+    "528757785295",
+    "054037137415",
+    "202533508444",
+    "816069130447",
+    "104299473261",
+    "445567083790",
+    "548813917035",
+    "897722679597",
+    "195665324256"
+  ]
+}
+
+variable "penultimate_accounts" {
+  description = "List of AWS account IDs that will have the penultimate agent version installed"
+  type        = list(string)
+  default     = [
+    "438979369891",
+    "686255941416",
+    "311141548321",
+    "528757785295",
+    "054037137415",
+    "202533508444",
+    "816069130447",
+    "104299473261",
+    "445567083790",
+    "548813917035",
+    "980921753767",
+    "195665324256"
+  ]
+}
+
+variable "latest_accounts" {
+  description = "List of AWS account IDs that will have the latest agent version installed"
+  type        = list(string)
+  default     = [
+    "897722679597"
+  ]
+}
+```
+
+The `ssm_shared_account_ids` variable specifies the target accounts with which to share the SSM Documents.
+
+The `penultimate_accounts` variable specifies which accounts will get the penultimate version of the Datadog agent.
+
+The `latest_accounts` variable specifies which account will get the latest version of the Datadog agent.
+
+## AWS SSO Config Profiles Setup required by Terraform for multi-account installation of SSM Document
+
+In order for this Terraform module to provision the AWS resources in every FedRAMP AWS account an AWS config file needs to be created that has a profile for each AWS account that will work with AWS Identity Center.
+At the time this document was written there were 13 FedRAMP AWS accounts and the following is the `~/.aws/config` required for these accounts:
 
 ```
 [default]
@@ -123,27 +299,6 @@ sso_registration_scopes = sso:account:access
 [profile fedramp-agencysim-npri]
 sso_session = fedramp-session
 sso_account_id = 438979369891
-sso_role_name = AdministratorAccess
-region = us-east-1
-output = json
-
-[profile fedramp-edge-nw-npr]
-sso_session = fedramp-session
-sso_account_id = 491085412189
-sso_role_name = AdministratorAccess
-region = us-east-1
-output = json
-
-[profile fedramp-edge-nw-npri]
-sso_session = fedramp-session
-sso_account_id = 761018876945
-sso_role_name = AdministratorAccess
-region = us-east-1
-output = json
-
-[profile fedramp-edge-nw-prd]
-sso_session = fedramp-session
-sso_account_id = 120569617426
 sso_role_name = AdministratorAccess
 region = us-east-1
 output = json
@@ -190,7 +345,14 @@ sso_role_name = AdministratorAccess
 region = us-east-1
 output = json
 
-[profile fedramp-network]
+[profile fedramp-network-npr]
+sso_session = fedramp-session
+sso_account_id = 104299473261
+sso_role_name = AdministratorAccess
+region = us-east-1
+output = json
+
+[profile fedramp-network-npri]
 sso_session = fedramp-session
 sso_account_id = 445567083790
 sso_role_name = AdministratorAccess
@@ -199,7 +361,7 @@ output = json
 
 [profile fedramp-network-prd]
 sso_session = fedramp-session
-sso_account_id = 104299473261
+sso_account_id = 548813917035
 sso_role_name = AdministratorAccess
 region = us-east-1
 output = json
@@ -238,7 +400,7 @@ output = json
 1.  Run this command from Linux CLI
 
 ```
-aws sso login --sso-session my-session --use-device-code
+aws sso login --sso-session fedramp-session --use-device-code
 ```
 
 2. It will output a URL that you need to put into you browser.  Something like:
@@ -260,6 +422,14 @@ aws s3 ls --profile go-noc-rd
 ```
 
 The profile must match one of the the profile values in the AWS config file above.
+
+## Lambda Function Prerequisites
+
+Each AWS account that you want to have Datadog agents upgraded by this process needs to have these three Parameter Store variables setup before running the Lambda function:
+
+* DATADOG_SITE (value will be `datadoghq.com` for NPRI or `ddog-gov.com` for NPR and PRD)
+* DATADOG_API_KEY
+* DATADOG_APP_KEY
 
 ## Lambda Function
 
@@ -383,7 +553,7 @@ provision the GitLab project and pipeline meant it was easier and predictable to
 
 # Testing
 
-Once this solution is deployed it can be tested from the AWS Lambda console by going to the `automated-agent-installation` Lambda function and using the native **Test** functionality.
+Once this solution is deployed it can be tested from the AWS Lambda console by going to the `automated-datadog-agent-upgrade` Lambda function and using the native **Test** functionality.
 
 ![Alt text](images/lambda-do-nothing.png?raw=true "Lambda output when latest agent version not approved")
 
@@ -399,6 +569,8 @@ If a new AWS account needs to be incorporated into this module, here are the fil
 * /main.tf
 * /modules/eb-lambda/main.tf
 * /modules/ssm/variables.tf
+* ~/.aws/config
+* add three Parameter Store variables (DATADOG_SITE, DATADOG_API_KEY and DATADOG_APP_KEY)
 
 # Helpful commands
 
@@ -432,22 +604,22 @@ bash -c "$(curl -L https://install.datadoghq.com/scripts/install_script_agent7.s
 ## Setup of Lambda Layer
 
 ```
-cd ~/terraform/aws/automated-agent-installation/modules/eb_lambda
+cd ~/terraform/aws/automated-datadog-agent-upgrade/modules/eb_lambda
 mkdir -p python/lib/python3.12/site-packages
 pip install requests -t python/lib/python3.12/site-packages
 zip -r artifacts/requests-layer.zip python
 ```
 
-# ToDo
+# To Do
 
-## Create AWS IAM Role in each account that will be assumed by Lambda Function - DONE
+### Create AWS IAM Role in each account that will be assumed by Lambda Function - DONE
 
-## Follow Mike's example in https://gitlab.tecsysrd.cloud/ops/noc/iam-keys-rotation-check to deploy IAM Roles in all AWS accounts.
+### Follow Mike's example in https://gitlab.tecsysrd.cloud/ops/noc/iam-keys-rotation-check to deploy IAM Roles in all AWS accounts.
 
-## Modify SSM Document so that is it shared to all AWS accounts - DONE
+### Modify SSM Document so that is it shared to all AWS accounts - DONE
 
-## Modify Lambda Function to call SSM Document in all AWS accounts - DONE
+### Modify Lambda Function to call SSM Document in all AWS accounts - DONE
 
-## Use Guilherme's dd-monitor-auto-mute Lambda function to Mute Datadog Monitor - IN PROGRESS
+### Use Guilherme's dd-monitor-auto-mute Lambda function to Mute Datadog Monitor - IN PROGRESS
 
-## Enhance with additin of SSM State Manager - IN PROGRESS
+### Enhance with addition of SSM State Manager - DONE
