@@ -13,51 +13,6 @@ output "fedramp_agencysim_npri_security_hub_id" {
   value = module.fedramp_agencysim_npri_security_hub.aws_securityhub_account_id
 }
 
-module "fedramp_edge_nw_npr_config" {
-  source = "./modules/security-hub"
-  providers = {
-    aws = aws.fedramp_edge_nw_npr
-  }
-}
-
-output "fedramp_edge_nw_npr_security_hub_arn" {
-  value = module.fedramp_edge_nw_npr_config.aws_securityhub_account_arn
-}
-
-output "fedramp_edge_nw_npr_security_hub_id" {
-  value = module.fedramp_edge_nw_npr_config.aws_securityhub_account_id
-}
-
-module "fedramp_edge_nw_npri_security_hub" {
-  source = "./modules/security-hub"
-  providers = {
-    aws = aws.fedramp_edge_nw_npri
-  }
-}
-
-output "fedramp_edge_nw_npri_security_hub_arn" {
-  value = module.fedramp_edge_nw_npri_security_hub.aws_securityhub_account_arn
-}
-
-output "fedramp_edge_nw_npri_security_hub_id" {
-  value = module.fedramp_edge_nw_npri_security_hub.aws_securityhub_account_id
-}
-
-module "fedramp_edge_nw_prd_config" {
-  source = "./modules/security-hub"
-  providers = {
-    aws = aws.fedramp_edge_nw_prd
-  }
-}
-
-output "fedramp_edge_nw_prd_security_hub_arn" {
-  value = module.fedramp_edge_nw_prd_config.aws_securityhub_account_arn
-}
-
-output "fedramp_edge_nw_prd_config_security_hub_id" {
-  value = module.fedramp_edge_nw_prd_config.aws_securityhub_account_id
-}
-
 module "fedramp_integration_npr_config" {
   source = "./modules/security-hub"
   providers = {
@@ -148,19 +103,34 @@ output "fedramp_k8s_prd_config_security_hub_id" {
   value = module.fedramp_k8s_prd_config.aws_securityhub_account_id
 }
 
-module "fedramp_network_security_hub" {
+module "fedramp_network_npr_security_hub" {
   source = "./modules/security-hub"
   providers = {
-    aws = aws.fedramp_network
+    aws = aws.fedramp_network_npr
   }
 }
 
-output "fedramp_network_security_hub_arn" {
-  value = module.fedramp_network_security_hub.aws_securityhub_account_arn
+output "fedramp_network_npr_security_hub_arn" {
+  value = module.fedramp_network_npr_security_hub.aws_securityhub_account_arn
 }
 
-output "fedramp_network_security_hub_id" {
-  value = module.fedramp_network_security_hub.aws_securityhub_account_id
+output "fedramp_network_npr_security_hub_id" {
+  value = module.fedramp_network_npr_security_hub.aws_securityhub_account_id
+}
+
+module "fedramp_network_npri_security_hub" {
+  source = "./modules/security-hub"
+  providers = {
+    aws = aws.fedramp_network_npri
+  }
+}
+
+output "fedramp_network_npri_security_hub_arn" {
+  value = module.fedramp_network_npri_security_hub.aws_securityhub_account_arn
+}
+
+output "fedramp_network_npri_security_hub_id" {
+  value = module.fedramp_network_npri_security_hub.aws_securityhub_account_id
 }
 
 module "fedramp_network_prd_security_hub" {

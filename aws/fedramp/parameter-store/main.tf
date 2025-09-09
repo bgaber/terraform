@@ -9,39 +9,6 @@ output "fedramp_agencysim_npri_ssm_document_arn" {
   value = module.fedramp_agencysim_npri_ssm.aws_ssm_parameter_arn
 }
 
-module "fedramp_edge_nw_npr_ssm" {
-  source = "./modules/ssm"
-  providers = {
-    aws = aws.fedramp_edge_nw_npr
-  }
-}
-
-output "fedramp_edge_nw_npr_ssm_document_arn" {
-  value = module.fedramp_edge_nw_npr_ssm.aws_ssm_parameter_arn
-}
-
-module "fedramp_edge_nw_npri_ssm" {
-  source = "./modules/ssm"
-  providers = {
-    aws = aws.fedramp_edge_nw_npri
-  }
-}
-
-output "fedramp_edge_nw_npri_ssm_document_arn" {
-  value = module.fedramp_edge_nw_npri_ssm.aws_ssm_parameter_arn
-}
-
-module "fedramp_edge_nw_prd_ssm" {
-  source = "./modules/ssm"
-  providers = {
-    aws = aws.fedramp_edge_nw_prd
-  }
-}
-
-output "fedramp_edge_nw_prd_ssm_document_arn" {
-  value = module.fedramp_edge_nw_prd_ssm.aws_ssm_parameter_arn
-}
-
 module "fedramp_integration_npr_ssm" {
   source = "./modules/ssm"
   providers = {
@@ -108,15 +75,26 @@ output "fedramp_k8s_prd_ssm_document_arn" {
   value = module.fedramp_k8s_prd_ssm.aws_ssm_parameter_arn
 }
 
-module "fedramp_network_ssm" {
+module "fedramp_network_npr_ssm" {
   source = "./modules/ssm"
   providers = {
-    aws = aws.fedramp_network
+    aws = aws.fedramp_network_npr
   }
 }
 
-output "fedramp_network_ssm_document_arn" {
-  value = module.fedramp_network_ssm.aws_ssm_parameter_arn
+output "fedramp_network_npr_ssm_document_arn" {
+  value = module.fedramp_network_npr_ssm.aws_ssm_parameter_arn
+}
+
+module "fedramp_network_npri_ssm" {
+  source = "./modules/ssm"
+  providers = {
+    aws = aws.fedramp_network_npri
+  }
+}
+
+output "fedramp_network_npri_ssm_document_arn" {
+  value = module.fedramp_network_npri_ssm.aws_ssm_parameter_arn
 }
 
 module "fedramp_network_prd_ssm" {

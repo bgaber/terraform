@@ -1,12 +1,6 @@
-variable "fedramp_edge_nw_npr_profile" {
+variable "fedramp_agencysim_npri_profile" {
   description = "AWS Credential File Profile"
-  default     = "fedramp-edge-nw-npr"
-  type        = string
-}
-
-variable "fedramp_edge_nw_prd_profile" {
-  description = "AWS Credential File Profile"
-  default     = "fedramp-edge-nw-prd"
+  default     = "fedramp-agencysim-npri"
   type        = string
 }
 
@@ -43,6 +37,30 @@ variable "fedramp_k8s_npri_profile" {
 variable "fedramp_k8s_prd_profile" {
   description = "AWS Credential File Profile"
   default     = "fedramp-k8s-prd"
+  type        = string
+}
+
+variable "fedramp_network_profile" {
+  description = "AWS Credential File Profile"
+  default     = "fedramp-network"
+  type        = string
+}
+
+variable "fedramp_network_npr_profile" {
+  description = "AWS Credential File Profile"
+  default     = "fedramp-network-npr"
+  type        = string
+}
+
+variable "fedramp_network_npri_profile" {
+  description = "AWS Credential File Profile"
+  default     = "fedramp-network-npri"
+  type        = string
+}
+
+variable "fedramp_network_prd_profile" {
+  description = "AWS Credential File Profile"
+  default     = "fedramp-network-prd"
   type        = string
 }
 

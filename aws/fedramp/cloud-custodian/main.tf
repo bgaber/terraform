@@ -159,11 +159,21 @@ module "fedramp_k8s_prd_targets_iam" {
   cc_trusted_user_arn = module.principal_iam.cc_service_account_arn
 }
 
-module "fedramp_network_targets_iam" {
+module "fedramp_network_npr_targets_iam" {
   source = "./modules/targets-iam"
 
   providers = {
-    aws = aws.fedramp_network
+    aws = aws.fedramp_network_npr
+  }
+
+  cc_trusted_user_arn = module.principal_iam.cc_service_account_arn
+}
+
+module "fedramp_network_npri_targets_iam" {
+  source = "./modules/targets-iam"
+
+  providers = {
+    aws = aws.fedramp_network_npri
   }
 
   cc_trusted_user_arn = module.principal_iam.cc_service_account_arn

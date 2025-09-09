@@ -31,54 +31,6 @@ provider "aws" {
 }
 
 provider "aws" {
-  alias   = "fedramp_edge_nw_npr"
-  region  = terraform.workspace == "default" ? "us-east-1" : "us-west-2"
-  profile = var.fedramp_edge_nw_npr_profile
-  default_tags {
-    tags = {
-      Created   = "16 Apr 2025"
-      Creator   = "Brian Gaber"
-      ManagedBy = "Terraform"
-      Owner     = "Colin Krane"
-      JIRA      = "FED-603"
-      Purpose   = "Setup and install Crowdstrike EDR for EC2 instances"
-    }
-  }
-}
-
-provider "aws" {
-  alias   = "fedramp_edge_nw_npri"
-  region  = terraform.workspace == "default" ? "us-east-1" : "us-west-2"
-  profile = var.fedramp_edge_nw_npri_profile
-  default_tags {
-    tags = {
-      Created   = "30 May 2025"
-      Creator   = "Brian Gaber"
-      ManagedBy = "Terraform"
-      Owner     = "Colin Krane"
-      JIRA      = "FED-603"
-      Purpose   = "Setup and install Crowdstrike EDR for EC2 instances"
-    }
-  }
-}
-
-provider "aws" {
-  alias   = "fedramp_edge_nw_prd"
-  region  = terraform.workspace == "default" ? "us-east-1" : "us-west-2"
-  profile = var.fedramp_edge_nw_prd_profile
-  default_tags {
-    tags = {
-      Created   = "16 Apr 2025"
-      Creator   = "Brian Gaber"
-      ManagedBy = "Terraform"
-      Owner     = "Colin Krane"
-      JIRA      = "FED-603"
-      Purpose   = "Setup and install Crowdstrike EDR for EC2 instances"
-    }
-  }
-}
-
-provider "aws" {
   alias   = "fedramp_integration_npr"
   region  = terraform.workspace == "default" ? "us-east-1" : "us-west-2"
   profile = var.fedramp_integration_npr_profile
@@ -175,12 +127,28 @@ provider "aws" {
 }
 
 provider "aws" {
-  alias   = "fedramp_network"
+  alias   = "fedramp_network_npr"
   region  = terraform.workspace == "default" ? "us-east-1" : "us-west-2"
-  profile = var.fedramp_network_profile
+  profile = var.fedramp_network_npr_profile
   default_tags {
     tags = {
-      Created   = "30 May 2025"
+      Created   = "24 Jun 2025"
+      Creator   = "Brian Gaber"
+      ManagedBy = "Terraform"
+      Owner     = "Colin Krane"
+      JIRA      = "FED-603"
+      Purpose   = "Setup and install Crowdstrike EDR for EC2 instances"
+    }
+  }
+}
+
+provider "aws" {
+  alias   = "fedramp_network_npri"
+  region  = terraform.workspace == "default" ? "us-east-1" : "us-west-2"
+  profile = var.fedramp_network_npri_profile
+  default_tags {
+    tags = {
+      Created   = "24 Jun 2025"
       Creator   = "Brian Gaber"
       ManagedBy = "Terraform"
       Owner     = "Colin Krane"

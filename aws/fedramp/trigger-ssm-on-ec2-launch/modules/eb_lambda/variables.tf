@@ -1,12 +1,12 @@
 variable "lambda_role" {
   description = "Lambda IAM ROle"
-  default     = "lambda_role"
+  default     = "trigger-ssm-lambda-role"
   type        = string
 }
 
 variable "ssm_policy" {
   description = "SSM IAM Policy"
-  default     = "SSMAccessPolicy"
+  default     = "TriggerSSMAccessPolicy"
   type        = string
 }
 

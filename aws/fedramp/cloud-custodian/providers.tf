@@ -127,9 +127,25 @@ provider "aws" {
 }
 
 provider "aws" {
-  alias   = "fedramp_network"
+  alias   = "fedramp_network_npr"
   region  = terraform.workspace == "default" ? "us-east-1" : "us-west-2"
-  profile = var.fedramp_network_profile
+  profile = var.fedramp_network_npr_profile
+  default_tags {
+    tags = {
+      Created   = "31 Jul 2025"
+      Creator   = "Brian Gaber"
+      ManagedBy = "Terraform"
+      Owner     = "Colin Krane"
+      JIRA      = "FED-1070"
+      Purpose   = "Unused credentials should be deactivated or removed"
+    }
+  }
+}
+
+provider "aws" {
+  alias   = "fedramp_network_npri"
+  region  = terraform.workspace == "default" ? "us-east-1" : "us-west-2"
+  profile = var.fedramp_network_npri_profile
   default_tags {
     tags = {
       Created   = "31 Jul 2025"

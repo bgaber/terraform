@@ -7,7 +7,7 @@ terraform {
   }
   backend "s3" {
     bucket  = "fedramp-terraform-noc"
-    key     = "aws/fedramp/iam-access-analyzer/tfstate"
+    key     = "aws/fedramp/automated-agent-installation/tfstate"
     region  = "us-east-1"
     profile = "fedramp-tools-npri"
     #dynamodb_table = "terraform-backend"
@@ -17,15 +17,18 @@ terraform {
 provider "aws" {
   alias   = "fedramp_agencysim_npri"
   region  = terraform.workspace == "default" ? "us-east-1" : "us-west-2"
-  profile = var.fedramp_agencysim_npri_profile
+  assume_role {
+    role_arn     = "arn:aws:iam::438979369891:role/datadog-agent-upgrade-role-assumed"
+    session_name = "terraform-fedramp-agencysim-npri-session"
+  }
   default_tags {
     tags = {
-      Created   = "11 Apr 2025"
+      Created   = "02 Jun 2025"
       Creator   = "Brian Gaber"
       ManagedBy = "Terraform"
       Owner     = "Colin Krane"
-      JIRA      = "FED-152"
-      Purpose   = "Setup AWS IAM Access Analyzer"
+      JIRA      = "FED-867"
+      Purpose   = "Automated Agent Installation"
     }
   }
 }
@@ -33,15 +36,18 @@ provider "aws" {
 provider "aws" {
   alias   = "fedramp_integration_npr"
   region  = terraform.workspace == "default" ? "us-east-1" : "us-west-2"
-  profile = var.fedramp_integration_npr_profile
+  assume_role {
+    role_arn     = "arn:aws:iam::686255941416:role/datadog-agent-upgrade-role-assumed"
+    session_name = "terraform-fedramp-integration-npr-session"
+  }
   default_tags {
     tags = {
-      Created   = "11 Apr 2025"
+      Created   = "02 Jun 2025"
       Creator   = "Brian Gaber"
       ManagedBy = "Terraform"
       Owner     = "Colin Krane"
-      JIRA      = "FED-152"
-      Purpose   = "Setup AWS IAM Access Analyzer"
+      JIRA      = "FED-867"
+      Purpose   = "Automated Agent Installation"
     }
   }
 }
@@ -49,15 +55,18 @@ provider "aws" {
 provider "aws" {
   alias   = "fedramp_integration_npri"
   region  = terraform.workspace == "default" ? "us-east-1" : "us-west-2"
-  profile = var.fedramp_integration_npri_profile
+  assume_role {
+    role_arn     = "arn:aws:iam::311141548321:role/datadog-agent-upgrade-role-assumed"
+    session_name = "terraform-fedramp-integration-npri-session"
+  }
   default_tags {
     tags = {
-      Created   = "11 Apr 2025"
+      Created   = "02 Jun 2025"
       Creator   = "Brian Gaber"
       ManagedBy = "Terraform"
       Owner     = "Colin Krane"
-      JIRA      = "FED-152"
-      Purpose   = "Setup AWS IAM Access Analyzer"
+      JIRA      = "FED-867"
+      Purpose   = "Automated Agent Installation"
     }
   }
 }
@@ -65,15 +74,18 @@ provider "aws" {
 provider "aws" {
   alias   = "fedramp_integration_prd"
   region  = terraform.workspace == "default" ? "us-east-1" : "us-west-2"
-  profile = var.fedramp_integration_prd_profile
+  assume_role {
+    role_arn     = "arn:aws:iam::528757785295:role/datadog-agent-upgrade-role-assumed"
+    session_name = "terraform-fedramp-integration-prd-session"
+  }
   default_tags {
     tags = {
-      Created   = "11 Apr 2025"
+      Created   = "02 Jun 2025"
       Creator   = "Brian Gaber"
       ManagedBy = "Terraform"
       Owner     = "Colin Krane"
-      JIRA      = "FED-152"
-      Purpose   = "Setup AWS IAM Access Analyzer"
+      JIRA      = "FED-867"
+      Purpose   = "Automated Agent Installation"
     }
   }
 }
@@ -81,15 +93,18 @@ provider "aws" {
 provider "aws" {
   alias   = "fedramp_k8s_npr"
   region  = terraform.workspace == "default" ? "us-east-1" : "us-west-2"
-  profile = var.fedramp_k8s_npr_profile
+  assume_role {
+    role_arn     = "arn:aws:iam::054037137415:role/datadog-agent-upgrade-role-assumed"
+    session_name = "terraform-fedramp-k8s-npr-session"
+  }
   default_tags {
     tags = {
-      Created   = "11 Apr 2025"
+      Created   = "02 Jun 2025"
       Creator   = "Brian Gaber"
       ManagedBy = "Terraform"
       Owner     = "Colin Krane"
-      JIRA      = "FED-152"
-      Purpose   = "Setup AWS IAM Access Analyzer"
+      JIRA      = "FED-867"
+      Purpose   = "Automated Agent Installation"
     }
   }
 }
@@ -97,15 +112,18 @@ provider "aws" {
 provider "aws" {
   alias   = "fedramp_k8s_npri"
   region  = terraform.workspace == "default" ? "us-east-1" : "us-west-2"
-  profile = var.fedramp_k8s_npri_profile
+  assume_role {
+    role_arn     = "arn:aws:iam::202533508444:role/datadog-agent-upgrade-role-assumed"
+    session_name = "terraform-fedramp-k8s-npri-session"
+  }
   default_tags {
     tags = {
-      Created   = "11 Apr 2025"
+      Created   = "02 Jun 2025"
       Creator   = "Brian Gaber"
       ManagedBy = "Terraform"
       Owner     = "Colin Krane"
-      JIRA      = "FED-152"
-      Purpose   = "Setup AWS IAM Access Analyzer"
+      JIRA      = "FED-867"
+      Purpose   = "Automated Agent Installation"
     }
   }
 }
@@ -113,31 +131,18 @@ provider "aws" {
 provider "aws" {
   alias   = "fedramp_k8s_prd"
   region  = terraform.workspace == "default" ? "us-east-1" : "us-west-2"
-  profile = var.fedramp_k8s_prd_profile
-  default_tags {
-    tags = {
-      Created   = "11 Apr 2025"
-      Creator   = "Brian Gaber"
-      ManagedBy = "Terraform"
-      Owner     = "Colin Krane"
-      JIRA      = "FED-152"
-      Purpose   = "Setup AWS IAM Access Analyzer"
-    }
+  assume_role {
+    role_arn     = "arn:aws:iam::816069130447:role/datadog-agent-upgrade-role-assumed"
+    session_name = "terraform-fedramp-k8s-prd-session"
   }
-}
-
-provider "aws" {
-  alias   = "fedramp_network"
-  region  = terraform.workspace == "default" ? "us-east-1" : "us-west-2"
-  profile = var.fedramp_network_profile
   default_tags {
     tags = {
-      Created   = "11 Apr 2025"
+      Created   = "02 Jun 2025"
       Creator   = "Brian Gaber"
       ManagedBy = "Terraform"
       Owner     = "Colin Krane"
-      JIRA      = "FED-152"
-      Purpose   = "Setup AWS IAM Access Analyzer"
+      JIRA      = "FED-867"
+      Purpose   = "Automated Agent Installation"
     }
   }
 }
@@ -145,15 +150,18 @@ provider "aws" {
 provider "aws" {
   alias   = "fedramp_network_npr"
   region  = terraform.workspace == "default" ? "us-east-1" : "us-west-2"
-  profile = var.fedramp_network_npr_profile
+  assume_role {
+    role_arn     = "arn:aws:iam::104299473261:role/datadog-agent-upgrade-role-assumed"
+    session_name = "terraform-fedramp-network-npr-session"
+  }
   default_tags {
     tags = {
-      Created   = "11 Apr 2025"
+      Created   = "02 Jun 2025"
       Creator   = "Brian Gaber"
       ManagedBy = "Terraform"
       Owner     = "Colin Krane"
-      JIRA      = "FED-152"
-      Purpose   = "Setup AWS IAM Access Analyzer"
+      JIRA      = "FED-867"
+      Purpose   = "Automated Agent Installation"
     }
   }
 }
@@ -161,15 +169,18 @@ provider "aws" {
 provider "aws" {
   alias   = "fedramp_network_npri"
   region  = terraform.workspace == "default" ? "us-east-1" : "us-west-2"
-  profile = var.fedramp_network_npri_profile
+  assume_role {
+    role_arn     = "arn:aws:iam::445567083790:role/datadog-agent-upgrade-role-assumed"
+    session_name = "terraform-fedramp-network-npri-session"
+  }
   default_tags {
     tags = {
-      Created   = "11 Apr 2025"
+      Created   = "02 Jun 2025"
       Creator   = "Brian Gaber"
       ManagedBy = "Terraform"
       Owner     = "Colin Krane"
-      JIRA      = "FED-152"
-      Purpose   = "Setup AWS IAM Access Analyzer"
+      JIRA      = "FED-867"
+      Purpose   = "Automated Agent Installation"
     }
   }
 }
@@ -177,15 +188,18 @@ provider "aws" {
 provider "aws" {
   alias   = "fedramp_network_prd"
   region  = terraform.workspace == "default" ? "us-east-1" : "us-west-2"
-  profile = var.fedramp_network_prd_profile
+  assume_role {
+    role_arn     = "arn:aws:iam::548813917035:role/datadog-agent-upgrade-role-assumed"
+    session_name = "terraform-fedramp-network-prd-session"
+  }
   default_tags {
     tags = {
-      Created   = "11 Apr 2025"
+      Created   = "02 Jun 2025"
       Creator   = "Brian Gaber"
       ManagedBy = "Terraform"
       Owner     = "Colin Krane"
-      JIRA      = "FED-152"
-      Purpose   = "Setup AWS IAM Access Analyzer"
+      JIRA      = "FED-867"
+      Purpose   = "Automated Agent Installation"
     }
   }
 }
@@ -193,15 +207,14 @@ provider "aws" {
 provider "aws" {
   alias   = "fedramp_security"
   region  = terraform.workspace == "default" ? "us-east-1" : "us-west-2"
-  profile = var.fedramp_security_profile
   default_tags {
     tags = {
-      Created   = "11 Apr 2025"
+      Created   = "02 Jun 2025"
       Creator   = "Brian Gaber"
       ManagedBy = "Terraform"
       Owner     = "Colin Krane"
-      JIRA      = "FED-152"
-      Purpose   = "Setup AWS IAM Access Analyzer"
+      JIRA      = "FED-867"
+      Purpose   = "Automated Agent Installation"
     }
   }
 }
@@ -209,15 +222,18 @@ provider "aws" {
 provider "aws" {
   alias   = "fedramp_tools_npri"
   region  = terraform.workspace == "default" ? "us-east-1" : "us-west-2"
-  profile = var.fedramp_tools_npri_profile
+  assume_role {
+    role_arn     = "arn:aws:iam::897722679597:role/datadog-agent-upgrade-role-assumed"
+    session_name = "terraform-fedramp-tools-npri-session"
+  }
   default_tags {
     tags = {
-      Created   = "11 Apr 2025"
+      Created   = "02 Jun 2025"
       Creator   = "Brian Gaber"
       ManagedBy = "Terraform"
       Owner     = "Colin Krane"
-      JIRA      = "FED-152"
-      Purpose   = "Setup AWS IAM Access Analyzer"
+      JIRA      = "FED-867"
+      Purpose   = "Automated Agent Installation"
     }
   }
 }
@@ -225,15 +241,18 @@ provider "aws" {
 provider "aws" {
   alias   = "fedramp_tools_prd"
   region  = terraform.workspace == "default" ? "us-east-1" : "us-west-2"
-  profile = var.fedramp_tools_prd_profile
+  assume_role {
+    role_arn     = "arn:aws:iam::195665324256:role/datadog-agent-upgrade-role-assumed"
+    session_name = "terraform-fedramp-tools-prd-session"
+  }
   default_tags {
     tags = {
-      Created   = "11 Apr 2025"
+      Created   = "02 Jun 2025"
       Creator   = "Brian Gaber"
       ManagedBy = "Terraform"
       Owner     = "Colin Krane"
-      JIRA      = "FED-152"
-      Purpose   = "Setup AWS IAM Access Analyzer"
+      JIRA      = "FED-867"
+      Purpose   = "Automated Agent Installation"
     }
   }
 }

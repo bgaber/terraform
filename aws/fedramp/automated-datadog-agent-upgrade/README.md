@@ -14,6 +14,48 @@
 
 The purpose of this multi-account solution is to automatically upgrade to the latest version of the Datadog agent on all EC2 instances in a testing account and the penultimate version of the Datadog agent on all EC2 instances in all customer accounts.
 
+# Authentication and Authorization
+
+Every GitLab Pipeline must authenticate before it can provision resources. The type of credentials required depends on the systems being managed:
+
+- **AWS resources with Terraform**: The pipeline requires an **IAM user** (service account) and, in some cases, one or more **IAM roles** that the user or pipeline assumes.  
+- **Kubernetes resources with Helm**: The pipeline requires a **Kubernetes Service Account (SA)** with the appropriate RBAC permissions.  
+
+If you were running the code in this repository manually from a Linux CLI, your user identity would need equivalent permissions (for example, an AWS User with IAM policies granting permission to create, update, or destroy infrastructure).  
+
+👉 The key takeaway is that **authentication is always required** for a GitLab Pipeline, and **authorization** determines *what actions that identity can perform* once authenticated.
+
+## How Authentication and Authorization Are Set Up in This Repository
+
+Since this pipeline uses Terraform to provision AWS resources, it requires AWS credentials. These credentials consist of the following:
+
+* AWS Access Key ID
+* AWS Secret Access Key
+* (Optionally) an IAM Role ARN that can be assumed by the pipeline for temporary, scoped permissions.
+
+These values are manually generated in AWS (or in some cases, provided by your AWS administrator) and then stored as GitLab CI/CD Variables. This allows the pipeline to authenticate securely without hardcoding secrets in the repository.
+
+When the pipeline runs:
+
+1. GitLab injects the stored credentials into the job environment.
+2. Terraform uses these credentials to authenticate to AWS.
+3. AWS IAM policies and roles determine which resources the pipeline is authorized to provision or manage.
+
+The IAM User and IAM Roles used by this GitLab Pipeline were created and managed by Terraform code in the following repository: https://gitlab.tecsysrd.cloud/briang/terraform/-/tree/main/aws/fedramp/automated-dd-agent-upgrade-iam?ref_type=heads
+
+## Authentication Flow Diagram
+
+```mermaid
+graph TD
+    A[GitLab Pipeline Job] -->|"Read from CI/CD Variables"| B[AWS Access Key ID]
+    A -->|"Read from CI/CD Variables"| C[AWS Secret Access Key]
+    A -->|"Optionally assume"| D[IAM Role ARN]
+    B --> E[AWS API]
+    C --> E
+    D --> E
+    E -->|"Authorize based on IAM Policies and Roles"| F["AWS Resources (Terraform-managed)"]
+```
+
 # Architecture
 
 ![Alt text](images/automated-agent-installation-poc.png?raw=true "Automated Datadog Agent Upgrade Architecture Diagram")
@@ -418,7 +460,7 @@ https://d-90677c141c.awsapps.com/start/#/device?user_code=ZWSV-FKLQ
 At this point you should be able to run an AWS CLI command on any of the FedRAMP AWS accounts.  For example:
 
 ```
-aws s3 ls --profile go-noc-rd
+aws s3 ls --profile fedramp-security
 ```
 
 The profile must match one of the the profile values in the AWS config file above.

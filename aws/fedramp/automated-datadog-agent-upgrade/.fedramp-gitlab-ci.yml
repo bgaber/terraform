@@ -1,0 +1,71 @@
+stages:
+  - plan
+  - deploy
+
+default:
+  tags:
+    - fips
+
+before_script:
+  - pwd
+  - apt-get update
+
+terraform_plan:
+  stage: plan
+  image: 897722679597.dkr.ecr.us-east-1.amazonaws.com/tecsys/noc/public_image:1.0.4
+  before_script:
+    - export no_proxy="localhost,127.0.0.1,169.254.169.254,.internal,gitlab.tools.tecsysfed.cloud,10.236.0.0/16"
+    - export http_proxy="https://proxy-fips.tecsysfed-proxy.cloud:3129"
+    - export https_proxy="https://proxy-fips.tecsysfed-proxy.cloud:3129"
+    - export HTTP_PROXY="$http_proxy"
+    - export HTTPS_PROXY="$https_proxy"
+    - export NO_PROXY="$no_proxy"
+    - echo "=== PROXY DEBUG INFO ==="
+    - echo "http_proxy $http_proxy"
+    - echo "https_proxy $https_proxy"
+    - echo "no_proxy $no_proxy"
+    - echo "HTTP_PROXY $HTTP_PROXY"
+    - echo "HTTPS_PROXY $HTTPS_PROXY" 
+    - echo "NO_PROXY $NO_PROXY"
+    - export AWS_USE_FIPS_ENDPOINT="true"
+    - pwd
+    - ls
+  script:
+    - terraform --version
+    - terraform init
+    - terraform validate
+    - terraform plan -refresh=false -out=tfplan
+  artifacts:
+    paths:
+      - tfplan
+    expire_in: 1h
+
+terraform_apply:
+  stage: deploy
+  image: 897722679597.dkr.ecr.us-east-1.amazonaws.com/tecsys/noc/public_image:1.0.4
+  when: manual
+  allow_failure: false
+  before_script:
+    - export no_proxy="localhost,127.0.0.1,169.254.169.254,.internal,gitlab.tools.tecsysfed.cloud,10.236.0.0/16"
+    - export http_proxy="https://proxy-fips.tecsysfed-proxy.cloud:3129"
+    - export https_proxy="https://proxy-fips.tecsysfed-proxy.cloud:3129"
+    - export HTTP_PROXY="$http_proxy"
+    - export HTTPS_PROXY="$https_proxy"
+    - export NO_PROXY="$no_proxy"
+    - echo "=== PROXY DEBUG INFO ==="
+    - echo "http_proxy $http_proxy"
+    - echo "https_proxy $https_proxy"
+    - echo "no_proxy $no_proxy"
+    - echo "HTTP_PROXY $HTTP_PROXY"
+    - echo "HTTPS_PROXY $HTTPS_PROXY" 
+    - echo "NO_PROXY $NO_PROXY"
+    - export AWS_USE_FIPS_ENDPOINT="true"
+    - pwd
+    - ls
+  script:
+    - terraform --version
+    - terraform init
+    - terraform apply -auto-approve
+    #- terraform apply -auto-approve tfplan # Using tfplan will mean that the refresh state is skipped
+  dependencies:
+    - terraform_plan

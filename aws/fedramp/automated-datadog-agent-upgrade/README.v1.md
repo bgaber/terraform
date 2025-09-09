@@ -229,7 +229,7 @@ https://d-90677c141c.awsapps.com/start/#/device?user_code=ZWSV-FKLQ
 At this point you should be able to run an AWS CLI command on any of the FedRAMP AWS accounts.  For example:
 
 ```
-aws s3 ls --profile go-noc-rd
+aws s3 ls --profile fedramp-security
 ```
 
 The profile must match one of the the profile values in the AWS config file above.

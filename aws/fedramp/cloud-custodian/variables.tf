@@ -46,9 +46,15 @@ variable "fedramp_k8s_prd_profile" {
   type        = string
 }
 
-variable "fedramp_network_profile" {
+variable "fedramp_network_npr_profile" {
   description = "AWS Credential File Profile"
-  default     = "fedramp-network"
+  default     = "fedramp-network-npr"
+  type        = string
+}
+
+variable "fedramp_network_npri_profile" {
+  description = "AWS Credential File Profile"
+  default     = "fedramp-network-npri"
   type        = string
 }
 
