@@ -2,7 +2,7 @@
 
 The high level steps to create the Terraform code are these three steps:
 
-**Step 1:** get the JSON representation of a Synthetic Test using API call
+**Step 1:** get the JSON representation of a Synthetic Test using API call which can be done with curl command or Terraform import of an existing Synthetic Browser Test
 
 **Step 2:** manually, or using an online tool further convert the JSON to a valid string which I then set it in the element parameter
 

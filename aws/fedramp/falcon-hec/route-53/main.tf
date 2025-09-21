@@ -21,75 +21,6 @@ output "fedramp_agencysim_npri_event_bridge_rule_iam_role_arn" {
   value = module.fedramp_agencysim_npri.event_bridge_rule_iam_role_arn
 }
 
-module "fedramp_edge_nw_npr" {
-  source = "./modules/route-53"
-  providers = {
-    aws = aws.fedramp_edge_nw_npr
-  }
-}
-
-output "fedramp_edge_nw_npr_event_connection_arn" {
-  value = module.fedramp_edge_nw_npr.event_connection_arn
-}
-
-output "fedramp_edge_nw_npr_event_api_destination_arn" {
-  value = module.fedramp_edge_nw_npr.event_api_destination_arn
-}
-
-output "fedramp_edge_nw_npr_event_bridge_rule_arn" {
-  value = module.fedramp_edge_nw_npr.event_bridge_rule_arn
-}
-
-output "fedramp_edge_nw_npr_event_bridge_rule_iam_role_arn" {
-  value = module.fedramp_edge_nw_npr.event_bridge_rule_iam_role_arn
-}
-
-module "fedramp_edge_nw_npri" {
-  source = "./modules/route-53"
-  providers = {
-    aws = aws.fedramp_edge_nw_npri
-  }
-}
-
-output "fedramp_edge_nw_npri_event_connection_arn" {
-  value = module.fedramp_edge_nw_npri.event_connection_arn
-}
-
-output "fedramp_edge_nw_npri_event_api_destination_arn" {
-  value = module.fedramp_edge_nw_npri.event_api_destination_arn
-}
-
-output "fedramp_edge_nw_npri_event_bridge_rule_arn" {
-  value = module.fedramp_edge_nw_npri.event_bridge_rule_arn
-}
-
-output "fedramp_edge_nw_npri_event_bridge_rule_iam_role_arn" {
-  value = module.fedramp_edge_nw_npri.event_bridge_rule_iam_role_arn
-}
-
-module "fedramp_edge_nw_prd" {
-  source = "./modules/route-53"
-  providers = {
-    aws = aws.fedramp_edge_nw_prd
-  }
-}
-
-output "fedramp_edge_nw_prd_event_connection_arn" {
-  value = module.fedramp_edge_nw_prd.event_connection_arn
-}
-
-output "fedramp_edge_nw_prd_event_api_destination_arn" {
-  value = module.fedramp_edge_nw_prd.event_api_destination_arn
-}
-
-output "fedramp_edge_nw_prd_event_bridge_rule_arn" {
-  value = module.fedramp_edge_nw_prd.event_bridge_rule_arn
-}
-
-output "fedramp_edge_nw_prd_event_bridge_rule_iam_role_arn" {
-  value = module.fedramp_edge_nw_prd.event_bridge_rule_iam_role_arn
-}
-
 module "fedramp_integration_npr" {
   source = "./modules/route-53"
   providers = {
@@ -228,27 +159,73 @@ output "fedramp_k8s_prd_event_bridge_rule_iam_role_arn" {
   value = module.fedramp_k8s_prd.event_bridge_rule_iam_role_arn
 }
 
-module "fedramp_network" {
+module "fedramp_network_npr" {
   source = "./modules/route-53"
   providers = {
-    aws = aws.fedramp_network
+    aws = aws.fedramp_network_npr
   }
 }
 
-output "fedramp_network_event_connection_arn" {
-  value = module.fedramp_network.event_connection_arn
+output "fedramp_network_npr_event_connection_arn" {
+  value = module.fedramp_network_npr.event_connection_arn
 }
 
-output "fedramp_network_event_api_destination_arn" {
-  value = module.fedramp_network.event_api_destination_arn
+output "fedramp_network_npr_event_api_destination_arn" {
+  value = module.fedramp_network_npr.event_api_destination_arn
 }
 
-output "fedramp_network_event_bridge_rule_arn" {
-  value = module.fedramp_network.event_bridge_rule_arn
+output "fedramp_network_npr_event_bridge_rule_arn" {
+  value = module.fedramp_network_npr.event_bridge_rule_arn
 }
 
-output "fedramp_network_event_bridge_rule_iam_role_arn" {
-  value = module.fedramp_network.event_bridge_rule_iam_role_arn
+output "fedramp_network_npr_event_bridge_rule_iam_role_arn" {
+  value = module.fedramp_network_npr.event_bridge_rule_iam_role_arn
+}
+
+module "fedramp_network_npri" {
+  source = "./modules/route-53"
+  providers = {
+    aws = aws.fedramp_network_npri
+  }
+}
+
+output "fedramp_network_npri_event_connection_arn" {
+  value = module.fedramp_network_npri.event_connection_arn
+}
+
+output "fedramp_network_npri_event_api_destination_arn" {
+  value = module.fedramp_network_npri.event_api_destination_arn
+}
+
+output "fedramp_network_npri_event_bridge_rule_arn" {
+  value = module.fedramp_network_npri.event_bridge_rule_arn
+}
+
+output "fedramp_network_npri_event_bridge_rule_iam_role_arn" {
+  value = module.fedramp_network_npri.event_bridge_rule_iam_role_arn
+}
+
+module "fedramp_network_prd" {
+  source = "./modules/route-53"
+  providers = {
+    aws = aws.fedramp_network_prd
+  }
+}
+
+output "fedramp_network_prd_event_connection_arn" {
+  value = module.fedramp_network_prd.event_connection_arn
+}
+
+output "fedramp_network_prd_event_api_destination_arn" {
+  value = module.fedramp_network_prd.event_api_destination_arn
+}
+
+output "fedramp_network_prd_event_bridge_rule_arn" {
+  value = module.fedramp_network_prd.event_bridge_rule_arn
+}
+
+output "fedramp_network_prd_event_bridge_rule_iam_role_arn" {
+  value = module.fedramp_network_prd.event_bridge_rule_iam_role_arn
 }
 
 module "fedramp_security" {
