@@ -173,14 +173,14 @@ resource "aws_lambda_function" "ssm_trigger_lambda" {
 
 resource "aws_cloudwatch_event_rule" "ec2_launch_rule" {
   name        = "TriggerSSMOnEC2Launch"
-  description = "Triggers SSM Run Command when an EC2 instance is launched"
+  description = "Triggers SSM Run Command when an EC2 instance is initially launched or started"
 
   event_pattern = jsonencode({
     "source": ["aws.ec2"],
     "detail-type": ["AWS API Call via CloudTrail"],
     "detail": {
       "eventSource": ["ec2.amazonaws.com"],
-      "eventName": ["RunInstances"]
+      "eventName": ["RunInstances", "StartInstances"]
     }
   })
 }

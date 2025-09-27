@@ -31,54 +31,6 @@ provider "aws" {
 }
 
 provider "aws" {
-  alias   = "fedramp_edge_nw_npr"
-  region  = terraform.workspace == "default" ? "us-east-1" : "us-west-2"
-  profile = var.fedramp_edge_nw_npr_profile
-  default_tags {
-    tags = {
-      Created   = "10 Apr 2025"
-      Creator   = "Brian Gaber"
-      ManagedBy = "Terraform"
-      Owner     = "Colin Krane"
-      JIRA      = "FED-641"
-      Purpose   = "Setup AWS Config"
-    }
-  }
-}
-
-provider "aws" {
-  alias   = "fedramp_edge_nw_npri"
-  region  = terraform.workspace == "default" ? "us-east-1" : "us-west-2"
-  profile = var.fedramp_edge_nw_npri_profile
-  default_tags {
-    tags = {
-      Created   = "10 Apr 2025"
-      Creator   = "Brian Gaber"
-      ManagedBy = "Terraform"
-      Owner     = "Colin Krane"
-      JIRA      = "FED-641"
-      Purpose   = "Setup AWS Config"
-    }
-  }
-}
-
-provider "aws" {
-  alias   = "fedramp_edge_nw_prd"
-  region  = terraform.workspace == "default" ? "us-east-1" : "us-west-2"
-  profile = var.fedramp_edge_nw_prd_profile
-  default_tags {
-    tags = {
-      Created   = "10 Apr 2025"
-      Creator   = "Brian Gaber"
-      ManagedBy = "Terraform"
-      Owner     = "Colin Krane"
-      JIRA      = "FED-641"
-      Purpose   = "Setup AWS Config"
-    }
-  }
-}
-
-provider "aws" {
   alias   = "fedramp_integration_npr"
   region  = terraform.workspace == "default" ? "us-east-1" : "us-west-2"
   profile = var.fedramp_integration_npr_profile
@@ -191,12 +143,44 @@ provider "aws" {
 }
 
 provider "aws" {
+  alias   = "fedramp_network_npr"
+  region  = terraform.workspace == "default" ? "us-east-1" : "us-west-2"
+  profile = var.fedramp_network_npr_profile
+  default_tags {
+    tags = {
+      Created   = "25 Sep 2025"
+      Creator   = "Brian Gaber"
+      ManagedBy = "Terraform"
+      Owner     = "Colin Krane"
+      JIRA      = "FED-641"
+      Purpose   = "Setup AWS Config"
+    }
+  }
+}
+
+provider "aws" {
+  alias   = "fedramp_network_npri"
+  region  = terraform.workspace == "default" ? "us-east-1" : "us-west-2"
+  profile = var.fedramp_network_npri_profile
+  default_tags {
+    tags = {
+      Created   = "25 Sep 2025"
+      Creator   = "Brian Gaber"
+      ManagedBy = "Terraform"
+      Owner     = "Colin Krane"
+      JIRA      = "FED-641"
+      Purpose   = "Setup AWS Config"
+    }
+  }
+}
+
+provider "aws" {
   alias   = "fedramp_network_prd"
   region  = terraform.workspace == "default" ? "us-east-1" : "us-west-2"
   profile = var.fedramp_network_prd_profile
   default_tags {
     tags = {
-      Created   = "24 Jun 2025"
+      Created   = "25 Sep 2025"
       Creator   = "Brian Gaber"
       ManagedBy = "Terraform"
       Owner     = "Colin Krane"

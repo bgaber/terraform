@@ -13,51 +13,6 @@ output "fedramp_agencysim_npri_channel_id" {
   value = module.fedramp_agencysim_npri_config.aws_config_delivery_channel_id
 }
 
-module "fedramp_edge_nw_npr_config" {
-  source = "./modules/config"
-  providers = {
-    aws = aws.fedramp_edge_nw_npr
-  }
-}
-
-output "fedramp_edge_nw_npr_config_recorder_id" {
-  value = module.fedramp_edge_nw_npr_config.aws_config_configuration_recorder_id
-}
-
-output "fedramp_edge_nw_npr_channel_id" {
-  value = module.fedramp_edge_nw_npr_config.aws_config_delivery_channel_id
-}
-
-module "fedramp_edge_nw_npri_config" {
-  source = "./modules/config"
-  providers = {
-    aws = aws.fedramp_edge_nw_npri
-  }
-}
-
-output "fedramp_edge_nw_npri_config_recorder_id" {
-  value = module.fedramp_edge_nw_npri_config.aws_config_configuration_recorder_id
-}
-
-output "fedramp_edge_nw_npri_channel_id" {
-  value = module.fedramp_edge_nw_npri_config.aws_config_delivery_channel_id
-}
-
-module "fedramp_edge_nw_prd_config" {
-  source = "./modules/config"
-  providers = {
-    aws = aws.fedramp_edge_nw_prd
-  }
-}
-
-output "fedramp_edge_nw_prd_config_recorder_id" {
-  value = module.fedramp_edge_nw_prd_config.aws_config_configuration_recorder_id
-}
-
-output "fedramp_edge_nw_prd_config_channel_id" {
-  value = module.fedramp_edge_nw_prd_config.aws_config_delivery_channel_id
-}
-
 module "fedramp_integration_npr_config" {
   source = "./modules/config"
   providers = {
@@ -148,19 +103,34 @@ output "fedramp_k8s_prd_config_channel_id" {
   value = module.fedramp_k8s_prd_config.aws_config_delivery_channel_id
 }
 
-module "fedramp_network_config" {
+module "fedramp_network_npr_config" {
   source = "./modules/config"
   providers = {
-    aws = aws.fedramp_network
+    aws = aws.fedramp_network_npr
   }
 }
 
-output "fedramp_network_config_recorder_id" {
-  value = module.fedramp_network_config.aws_config_configuration_recorder_id
+output "fedramp_network_npr_config_recorder_id" {
+  value = module.fedramp_network_npr_config.aws_config_configuration_recorder_id
 }
 
-output "fedramp_network_config_channel_id" {
-  value = module.fedramp_network_config.aws_config_delivery_channel_id
+output "fedramp_network_npr_config_channel_id" {
+  value = module.fedramp_network_npr_config.aws_config_delivery_channel_id
+}
+
+module "fedramp_network_npri_config" {
+  source = "./modules/config"
+  providers = {
+    aws = aws.fedramp_network_npri
+  }
+}
+
+output "fedramp_network_npri_config_recorder_id" {
+  value = module.fedramp_network_npri_config.aws_config_configuration_recorder_id
+}
+
+output "fedramp_network_npri_config_channel_id" {
+  value = module.fedramp_network_npri_config.aws_config_delivery_channel_id
 }
 
 module "fedramp_network_prd_config" {
