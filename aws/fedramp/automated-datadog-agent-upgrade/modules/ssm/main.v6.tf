@@ -54,16 +54,6 @@ resource "aws_ssm_document" "linux_datadog_agent" {
         "type": "String",
         "description": "(Optional) Specify the minor version of the Datadog Agent",
         "default": ""
-      },
-      proxyHost = {
-        type        = "String"
-        default     = "proxy.zone-proxy.cloud"
-        description = "Proxy host (default: proxy.zone-proxy.cloud)"
-      },
-      proxyPort = {
-        type        = "String"
-        default     = "3128"
-        description = "Proxy port (default: 3128)"
       }
     },
     "mainSteps": [
@@ -77,18 +67,6 @@ resource "aws_ssm_document" "linux_datadog_agent" {
         "inputs": {
           "runCommand": [
             "set -e",
-            "PROXY_HOST='{{ proxyHost }}'",
-            "PROXY_PORT='{{ proxyPort }}'",
-            "",
-            "# --- Build proxy URL and FORCE its use ---",
-            "PROXY_URI=\"http://$${PROXY_HOST}:$${PROXY_PORT}\"",
-            "echo \"Using forced proxy: $${PROXY_URI}\"",
-            "",
-            "# Export proxy for any internal calls the installer makes",
-            "export HTTP_PROXY=\"$PROXY_URI\"",
-            "export HTTPS_PROXY=\"$PROXY_URI\"",
-            "export NO_PROXY=''",
-            "",
             "if [ \"{{ action }}\" = \"Upgrade\" ]; then",
             "  # Check if datadog-agent is installed",
             "  if systemctl status datadog-agent >/dev/null 2>&1; then",
@@ -96,7 +74,6 @@ resource "aws_ssm_document" "linux_datadog_agent" {
             "    hn=$(hostname)",
             "    INSTALL_SCRIPT_URL=https://s3.amazonaws.com/dd-agent/scripts/install_script_agent7.sh",
             "    DD_API_KEY=\"{{ apikey }}\" DD_SITE=\"{{ site }}\" DD_HOST_TAGS=\"{{ tags }}\" DD_HOSTNAME=\"$hn\" DD_AGENT_MAJOR_VERSION=\"{{ agentmajorversion }}\" DD_AGENT_MINOR_VERSION=\"{{ agentminorversion }}\" bash -c \"$(curl -L \"$${INSTALL_SCRIPT_URL}\" | sed -e \"s|tool: install_script|tool: aws_run_command|g\" -e \"s|variant=install_script_agent7|variant=aws_run_command-6.0|g\")\"",
-            "    echo 'Datadog agent upgraded.'",
             "  else",
             "    echo 'Datadog agent not found. Skipping upgrade.'",
             "  fi",
@@ -115,24 +92,11 @@ resource "aws_ssm_document" "linux_datadog_agent" {
         "inputs": {
           "runCommand": [
             "set -e",
-            "PROXY_HOST='{{ proxyHost }}'",
-            "PROXY_PORT='{{ proxyPort }}'",
-            "",
-            "# --- Build proxy URL and FORCE its use ---",
-            "PROXY_URI=\"http://$${PROXY_HOST}:$${PROXY_PORT}\"",
-            "echo \"Using forced proxy: $${PROXY_URI}\"",
-            "",
-            "# Export proxy for any internal calls the installer makes",
-            "export HTTP_PROXY=\"$PROXY_URI\"",
-            "export HTTPS_PROXY=\"$PROXY_URI\"",
-            "export NO_PROXY=''",
-            "",
             "if [ \"{{ action }}\" = \"Install\" ]; then",
             "  echo 'Proceeding with installation of Datadog Agent ...'",
             "  hn=$(hostname)",
             "  INSTALL_SCRIPT_URL=https://s3.amazonaws.com/dd-agent/scripts/install_script_agent7.sh",
             "  DD_API_KEY=\"{{ apikey }}\" DD_SITE=\"{{ site }}\" DD_HOST_TAGS=\"{{ tags }}\" DD_HOSTNAME=\"$hn\" DD_AGENT_MAJOR_VERSION=\"{{ agentmajorversion }}\" DD_AGENT_MINOR_VERSION=\"{{ agentminorversion }}\" bash -c \"$(curl -L \"$${INSTALL_SCRIPT_URL}\" | sed -e \"s|tool: install_script|tool: aws_run_command|g\" -e \"s|variant=install_script_agent7|variant=aws_run_command-6.0|g\")\"",
-            "  echo 'Datadog agent installed.'",
             "fi",
             "set +e"
           ]

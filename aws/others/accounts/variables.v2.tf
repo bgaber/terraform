@@ -4,9 +4,9 @@ variable "region" {
   type        = string
 }
 
-variable "fedramp_security_profile" {
+variable "fedramp_access_analyzer_profile" {
   description = "AWS Credential File Profile"
-  default     = "fedramp-security"
+  default     = "fedramp-access-analyzer"
   type        = string
 }
 
